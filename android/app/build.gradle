@@ -1,0 +1,92 @@
+plugins {
+    id "com.android.application"
+    id 'com.google.gms.google-services' // Firebase plugin
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('../key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    println "Keystore properties loaded:"
+    println "storeFile: ${keystoreProperties['storeFile']}"
+    println "keyAlias: ${keystoreProperties['keyAlias']}"
+} else {
+    println "key.properties file not found at: ${keystorePropertiesFile.absolutePath}"
+}
+
+android {
+    namespace = "com.rax.cornaddiction"
+    compileSdk 35 // Use modern syntax
+
+    ndkVersion = flutter.ndkVersion
+
+    defaultConfig {
+        applicationId "com.rax.cornaddiction"
+        minSdk 23
+        targetSdk 35
+        versionCode 1
+        versionName "1.0.0"
+        multiDexEnabled true
+    }
+
+    signingConfigs {
+        release {
+            if (keystoreProperties['storeFile']) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                println "Release signing config created with storeFile: ${keystoreProperties['storeFile']}"
+            } else {
+                println "ERROR: storeFile property is missing or empty"
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17 // Updated for modern compatibility
+        targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled true
+    }
+
+    kotlinOptions {
+        jvmTarget = "17" // Kotlin JVM target to match Java
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.release // Now using release signing config
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            // Disable texture debugging in debug builds
+            debuggable true
+            minifyEnabled false
+        }
+    }
+
+    // Add resolution strategy to force Kotlin version
+    configurations.all {
+        resolutionStrategy {
+            force 'org.jetbrains.kotlin:kotlin-stdlib:2.1.0'
+            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.0'
+            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0'
+            force 'org.jetbrains.kotlin:kotlin-stdlib-common:2.1.0'
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:32.7.0') // Firebase BOM
+    implementation 'com.google.firebase:firebase-auth-ktx' // Firebase Auth KTX dependency
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.1.0'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4' // Add desugaring dependency
+}

@@ -1,0 +1,96 @@
+# Flutter
+.dart_tool/
+.packages
+.pub-cache/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+generated_plugin_registrant.dart
+
+# Keystore files - CRITICAL FOR APP UPDATES - BACKUP SEPARATELY
+# See KEYSTORE_BACKUP_INSTRUCTIONS.md for backup instructions
+
+# IntelliJ related
+.idea/
+*.iml
+
+# VS Code related
+.vscode/
+*.code-workspace
+
+# MacOS / Linux / Windows
+.DS_Store
+*.swp
+*.swo
+*.tmp
+*.bak
+
+# Android
+android/.gradle/
+android/app/build/
+android/captures/
+android/.idea/
+android/local.properties
+android/gradle.properties
+android/key.properties
+android/**/debug.keystore
+android/.settings/
+android/.classpath
+android/.project
+
+# iOS
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Pods/
+ios/.symlinks/
+ios/Runner.xcworkspace/
+ios/Runner/GeneratedPluginRegistrant.*
+ios/build/
+ios/.dart_tool/
+
+# Web
+web/generated_plugin_registrant.dart
+
+# Windows
+windows/build/
+windows/runner/Runner.exe
+windows/flutter/ephemeral/
+
+# Linux
+linux/build/
+linux/flutter/ephemeral/
+
+# macOS
+macos/build/
+macos/Flutter/ephemeral/
+
+# Firebase
+**/google-services.json
+**/GoogleService-Info.plist
+
+# Misc
+*.log
+*.lock
+*.tmp
+*.orig
+*.rej
+
+# Coverage
+coverage/
+
+# Secrets
+.env
+.env.*
+
+# Thumbs.db (Windows crap)
+Thumbs.db
+ehthumbs.db
+
+# Crashlytics / Firebase
+android/app/src/main/assets/crashlytics-build.properties
+
+# Don't ignore these (if you have custom rules)
+!android/app/src/main/res/
+android/app/.cxx/
