@@ -2,7 +2,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
-import 'package:corn_addiction/app.dart';
 import 'package:corn_addiction/wrapper.dart';
 import 'package:corn_addiction/theme_new.dart';
 
@@ -82,14 +81,14 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
   void initState() {
     super.initState();
     _backgroundController = AnimationController(
-      duration: const Duration(seconds: 30),  // Increased for smoother animation
+      duration: const Duration(seconds: 30), // Increased for smoother animation
       vsync: this,
     );
-    
+
     if (!widget.reducedMotion) {
       _backgroundController.repeat();
     } else {
-      _backgroundController.value = 0.5;  // Fixed position for reduced motion
+      _backgroundController.value = 0.5; // Fixed position for reduced motion
     }
 
     _backgroundAnimation = Tween<double>(

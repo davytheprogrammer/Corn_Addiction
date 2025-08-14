@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:corn_addiction/core/constants/app_colors.dart';
 import 'package:corn_addiction/services/database.dart';
-import 'package:corn_addiction/services/auth.dart';
+import 'package:corn_addiction/services/auth_service.dart';
 import 'package:corn_addiction/models/streak_model.dart';
 import 'package:corn_addiction/models/urge_log_model.dart';
 import 'package:intl/intl.dart';
@@ -16,20 +16,21 @@ class StatsScreen extends ConsumerStatefulWidget {
   ConsumerState<StatsScreen> createState() => _StatsScreenState();
 }
 
-class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProviderStateMixin {
+class _StatsScreenState extends ConsumerState<StatsScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late Future<void> _dataFuture;
-  
+
   StreakModel? _streak;
   List<UrgeLogModel> _urgeLogs = [];
   List<MapEntry<String, int>> _triggerCategories = [];
   Map<DateTime, int> _urgesByDate = {};
-  
+
   int _totalDaysClean = 0;
   int _totalRelapses = 0;
   double _avgUrgeIntensity = 0;
   String _timeframe = 'week';
-  
+
   @override
   void initState() {
     super.initState();
@@ -45,17 +46,18 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
 
   Future<void> _loadData() async {
     try {
-      final database = DatabaseService(uid: AuthService().currentUser!.uid);
-      
+      final authService = AuthService();
+      final database = DatabaseService(uid: authService.currentUser!.uid);
+
       // Get streak data
       final streak = await database.getCurrentStreak();
-      
+
       // Get urge logs based on timeframe
       final urgeLogs = await database.getUrgeLogs(timeframe: _timeframe);
-      
+
       // Process data
       _processData(streak, urgeLogs);
-      
+
       setState(() {
         _streak = streak;
         _urgeLogs = urgeLogs;
@@ -64,21 +66,29 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       debugPrint('Error loading stats data: $e');
     }
   }
-  
+
   void _processData(StreakModel? streak, List<UrgeLogModel> urgeLogs) {
     // Calculate stats
     _totalDaysClean = streak?.daysCount ?? 0;
     _totalRelapses = urgeLogs.where((log) => !log.wasResisted).length;
-    
+
     if (urgeLogs.isNotEmpty) {
-      _avgUrgeIntensity = urgeLogs.fold(0.0, 
-        (sum, log) => sum + (log.intensity == UrgeIntensity.low ? 3 : 
-                             log.intensity == UrgeIntensity.medium ? 5 : 
-                             log.intensity == UrgeIntensity.high ? 7 : 9)) / urgeLogs.length;
+      _avgUrgeIntensity = urgeLogs.fold(
+              0.0,
+              (sum, log) =>
+                  sum +
+                  (log.intensity == UrgeIntensity.low
+                      ? 3
+                      : log.intensity == UrgeIntensity.medium
+                          ? 5
+                          : log.intensity == UrgeIntensity.high
+                              ? 7
+                              : 9)) /
+          urgeLogs.length;
     } else {
       _avgUrgeIntensity = 0;
     }
-    
+
     // Process triggers
     final triggerCount = <String, int>{};
     for (final log in urgeLogs) {
@@ -86,22 +96,23 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
         triggerCount[trigger] = (triggerCount[trigger] ?? 0) + 1;
       }
     }
-    
+
     _triggerCategories = triggerCount.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    
+
     if (_triggerCategories.length > 5) {
       _triggerCategories = _triggerCategories.sublist(0, 5);
     }
-    
+
     // Process urges by date
     _urgesByDate = {};
     for (final log in urgeLogs) {
-      final date = DateTime(log.timestamp.year, log.timestamp.month, log.timestamp.day);
+      final date =
+          DateTime(log.timestamp.year, log.timestamp.month, log.timestamp.day);
       _urgesByDate[date] = (_urgesByDate[date] ?? 0) + 1;
     }
   }
-  
+
   void _changeTimeframe(String timeframe) {
     setState(() {
       _timeframe = timeframe;
@@ -143,7 +154,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           return TabBarView(
             controller: _tabController,
             children: [
@@ -156,7 +167,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   Widget _buildOverviewTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -174,7 +185,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   Widget _buildTrendsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -192,7 +203,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   Widget _buildInsightsTab() {
     // For now this is just a placeholder
     return Center(
@@ -229,7 +240,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   Widget _buildTimeframeSelector() {
     return Container(
       height: 44,
@@ -247,10 +258,10 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   Widget _buildTimeframeButton(String label, String value) {
     final isSelected = _timeframe == value;
-    
+
     return Expanded(
       child: GestureDetector(
         onTap: () => _changeTimeframe(value),
@@ -273,7 +284,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   Widget _buildStatsGrid() {
     return GridView.count(
       shrinkWrap: true,
@@ -283,15 +294,23 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       crossAxisSpacing: 16,
       mainAxisSpacing: 16,
       children: [
-        _buildStatCard('Days Clean', _totalDaysClean.toString(), Icons.calendar_today, AppColors.primary),
-        _buildStatCard('Relapses', _totalRelapses.toString(), Icons.warning_amber, Colors.orange),
-        _buildStatCard('Avg Urge Intensity', _avgUrgeIntensity.toStringAsFixed(1), Icons.speed, Colors.red),
-        _buildStatCard('Urges Resisted', '${_urgeLogs.where((log) => log.wasResisted).length}', Icons.verified, Colors.green),
+        _buildStatCard('Days Clean', _totalDaysClean.toString(),
+            Icons.calendar_today, AppColors.primary),
+        _buildStatCard('Relapses', _totalRelapses.toString(),
+            Icons.warning_amber, Colors.orange),
+        _buildStatCard('Avg Urge Intensity',
+            _avgUrgeIntensity.toStringAsFixed(1), Icons.speed, Colors.red),
+        _buildStatCard(
+            'Urges Resisted',
+            '${_urgeLogs.where((log) => log.wasResisted).length}',
+            Icons.verified,
+            Colors.green),
       ],
     );
   }
-  
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -333,12 +352,13 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   Widget _buildStrengthChart() {
     if (_urgeLogs.isEmpty) {
-      return _buildEmptyState('No urge data available', 'Log your urges to see intensity patterns');
+      return _buildEmptyState(
+          'No urge data available', 'Log your urges to see intensity patterns');
     }
-    
+
     // Calculate intensity distribution
     int low = 0, medium = 0, high = 0, extreme = 0;
     for (final log in _urgeLogs) {
@@ -357,7 +377,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
           break;
       }
     }
-    
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -491,7 +511,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   BarChartGroupData _createBarGroup(int x, int y, Color color) {
     return BarChartGroupData(
       x: x,
@@ -508,12 +528,13 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ],
     );
   }
-  
+
   Widget _buildTriggersList() {
     if (_triggerCategories.isEmpty) {
-      return _buildEmptyState('No trigger data', 'Log what causes urges to see patterns');
+      return _buildEmptyState(
+          'No trigger data', 'Log what causes urges to see patterns');
     }
-    
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -534,8 +555,9 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
             const SizedBox(height: 16),
             ...List.generate(_triggerCategories.length, (index) {
               final trigger = _triggerCategories[index];
-              final percentage = (trigger.value / _urgeLogs.length * 100).round();
-              
+              final percentage =
+                  (trigger.value / _urgeLogs.length * 100).round();
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Column(
@@ -565,7 +587,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                     LinearProgressIndicator(
                       value: percentage / 100,
                       backgroundColor: Colors.grey[200],
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(AppColors.primary),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ],
@@ -577,18 +600,19 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   Widget _buildUrgesOverTimeChart() {
     if (_urgesByDate.isEmpty) {
-      return _buildEmptyState('No data to display', 'Log your urges to see trends over time');
+      return _buildEmptyState(
+          'No data to display', 'Log your urges to see trends over time');
     }
-    
+
     final List<FlSpot> spots = [];
-    
+
     // Get date range based on timeframe
     DateTime endDate = DateTime.now();
     DateTime startDate;
-    
+
     switch (_timeframe) {
       case 'week':
         startDate = endDate.subtract(const Duration(days: 7));
@@ -605,18 +629,18 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       default:
         startDate = endDate.subtract(const Duration(days: 7));
     }
-    
+
     // Create day-by-day data
     for (DateTime date = startDate;
-         date.isBefore(endDate) || date.isAtSameMomentAs(endDate);
-         date = date.add(const Duration(days: 1))) {
-      
+        date.isBefore(endDate) || date.isAtSameMomentAs(endDate);
+        date = date.add(const Duration(days: 1))) {
       final daysSinceStart = date.difference(startDate).inDays.toDouble();
-      final value = _urgesByDate[DateTime(date.year, date.month, date.day)] ?? 0;
-      
+      final value =
+          _urgesByDate[DateTime(date.year, date.month, date.day)] ?? 0;
+
       spots.add(FlSpot(daysSinceStart, value.toDouble()));
     }
-    
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -657,7 +681,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                         showTitles: true,
                         reservedSize: 30,
                         getTitlesWidget: (value, meta) {
-                          if (value == 0 || value % 1 != 0) return const SizedBox();
+                          if (value == 0 || value % 1 != 0)
+                            return const SizedBox();
                           return Padding(
                             padding: const EdgeInsets.only(right: 8.0),
                             child: Text(
@@ -678,7 +703,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                         getTitlesWidget: (value, meta) {
                           if (_timeframe == 'week') {
                             // For week, show day names
-                            final date = startDate.add(Duration(days: value.toInt()));
+                            final date =
+                                startDate.add(Duration(days: value.toInt()));
                             final format = DateFormat('E');
                             return Padding(
                               padding: const EdgeInsets.only(top: 8.0),
@@ -692,8 +718,11 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                             );
                           } else {
                             // For other timeframes, show selected dates
-                            if (value % 5 == 0 || value == 0 || value == spots.length - 1) {
-                              final date = startDate.add(Duration(days: value.toInt()));
+                            if (value % 5 == 0 ||
+                                value == 0 ||
+                                value == spots.length - 1) {
+                              final date =
+                                  startDate.add(Duration(days: value.toInt()));
                               final format = DateFormat('M/d');
                               return Padding(
                                 padding: const EdgeInsets.only(top: 8.0),
@@ -738,7 +767,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                       tooltipBgColor: Colors.blueGrey,
                       getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
                         return touchedBarSpots.map((barSpot) {
-                          final date = startDate.add(Duration(days: barSpot.x.toInt()));
+                          final date =
+                              startDate.add(Duration(days: barSpot.x.toInt()));
                           final format = DateFormat('MMM d');
                           return LineTooltipItem(
                             '${barSpot.y.toInt()} urges\n${format.format(date)}',
@@ -756,7 +786,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   Widget _buildStreakProgress() {
     return Card(
       elevation: 2,
@@ -796,7 +826,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                       value: (_streak?.daysCount ?? 0) / 100,
                       strokeWidth: 12,
                       backgroundColor: Colors.grey[200],
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(AppColors.primary),
                     ),
                   ),
                   Column(
@@ -844,7 +875,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   Widget _buildStreakStat(String label, String value) {
     return Column(
       children: [
@@ -866,11 +897,11 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ],
     );
   }
-  
+
   Widget _buildHeatmapChart() {
     // This would be a placeholder since a full heatmap implementation is complex
     // In a real app, you'd use a calendar heatmap package
-    
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -897,7 +928,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Placeholder for heatmap visualization
             Container(
               height: 150,
@@ -914,7 +945,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -931,7 +962,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ),
     );
   }
-  
+
   Widget _buildColorIndicator(String label, Color color) {
     return Row(
       children: [
@@ -958,7 +989,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> with SingleTickerProv
       ],
     );
   }
-  
+
   Widget _buildEmptyState(String title, String message) {
     return Card(
       elevation: 2,

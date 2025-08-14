@@ -1,0 +1,78 @@
+import 'package:flutter/material.dart';
+import 'package:corn_addiction/models/streak_model.dart';
+import 'package:corn_addiction/models/urge_log_model.dart';
+import 'package:corn_addiction/services/auth_service.dart';
+import 'package:corn_addiction/services/database.dart';
+
+class DashboardController extends ChangeNotifier {
+  bool _isLoading = true;
+  StreakModel? _currentStreak;
+  List<UrgeLogModel> _recentUrges = [];
+  bool _hasCheckedInToday = false;
+  int _currentStreakDays = 0;
+  DateTime? _lastCheckIn;
+
+  // Getters
+  bool get isLoading => _isLoading;
+  StreakModel? get currentStreak => _currentStreak;
+  List<UrgeLogModel> get recentUrges => _recentUrges;
+  bool get hasCheckedInToday => _hasCheckedInToday;
+  int get currentStreakDays => _currentStreakDays;
+  DateTime? get lastCheckIn => _lastCheckIn;
+
+  Future<void> loadUserData() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final authService = AuthService();
+      final database = DatabaseService(uid: authService.currentUser!.uid);
+      final streak = await database.getCurrentStreak();
+      final urges = await database.getUrgeLogs(timeframe: 'week');
+
+      _currentStreak = streak;
+      _recentUrges = urges.take(5).toList();
+
+      // Fix: Use the actual daysCount from the database instead of calculating
+      if (streak != null && streak.isActive) {
+        _currentStreakDays = streak.daysCount;
+      } else {
+        _currentStreakDays = 0;
+      }
+
+      // Check if user has checked in today
+      _lastCheckIn = streak?.startDate;
+      final today = DateTime.now();
+      _hasCheckedInToday = _lastCheckIn != null &&
+          _lastCheckIn!.year == today.year &&
+          _lastCheckIn!.month == today.month &&
+          _lastCheckIn!.day == today.day;
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading user data: $e');
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<String> checkIn() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final authService = AuthService();
+      final database = DatabaseService(uid: authService.currentUser!.uid);
+
+      await database.checkInDaily();
+      await loadUserData(); // Reload data to get updated streak
+
+      return 'Check-in successful! Day $_currentStreakDays complete!';
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      throw Exception('Error: ${e.toString()}');
+    }
+  }
+}

@@ -15,7 +15,8 @@ class CornAddictionTheme {
   static const Color primaryLight = Color(0xFF66BB6A); // Light green
   static const Color primaryDark = Color(0xFF1B5E20); // Dark green
   static const Color accent = Color(0xFFF57C00); // Orange
-  static const Color background = Color(0xFFF5F9F6); // Light green-tinted background
+  static const Color background =
+      Color(0xFFF5F9F6); // Light green-tinted background
   static const Color error = Color(0xFFD32F2F); // Red
   static const Color success = Color(0xFF388E3C); // Green
   static const Color warning = Color(0xFFFFA000); // Amber
@@ -176,7 +177,7 @@ class CornAddictionTheme {
       checkboxTheme: CheckboxThemeData(
         fillColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.32);
+            return Colors.grey.withValues(alpha: 0.32);
           }
           return primary;
         }),
@@ -187,7 +188,7 @@ class CornAddictionTheme {
       radioTheme: RadioThemeData(
         fillColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.32);
+            return Colors.grey.withValues(alpha: 0.32);
           }
           return primary;
         }),
@@ -195,7 +196,7 @@ class CornAddictionTheme {
       switchTheme: SwitchThemeData(
         thumbColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.32);
+            return Colors.grey.withValues(alpha: 0.32);
           }
           if (states.contains(MaterialState.selected)) {
             return primary;
@@ -204,12 +205,12 @@ class CornAddictionTheme {
         }),
         trackColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.12);
+            return Colors.grey.withValues(alpha: 0.12);
           }
           if (states.contains(MaterialState.selected)) {
-            return primary.withOpacity(.5);
+            return primary.withValues(alpha: 0.5);
           }
-          return Colors.grey.withOpacity(.5);
+          return Colors.grey.withValues(alpha: 0.5);
         }),
       ),
       snackBarTheme: SnackBarThemeData(
@@ -307,7 +308,7 @@ class CornAddictionTheme {
       checkboxTheme: CheckboxThemeData(
         fillColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.32);
+            return Colors.grey.withValues(alpha: 0.32);
           }
           return primaryLight;
         }),
@@ -318,7 +319,7 @@ class CornAddictionTheme {
       radioTheme: RadioThemeData(
         fillColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.32);
+            return Colors.grey.withValues(alpha: 0.32);
           }
           return primaryLight;
         }),
@@ -326,7 +327,7 @@ class CornAddictionTheme {
       switchTheme: SwitchThemeData(
         thumbColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.32);
+            return Colors.grey.withValues(alpha: 0.32);
           }
           if (states.contains(MaterialState.selected)) {
             return primaryLight;
@@ -335,12 +336,12 @@ class CornAddictionTheme {
         }),
         trackColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.12);
+            return Colors.grey.withValues(alpha: 0.12);
           }
           if (states.contains(MaterialState.selected)) {
-            return primaryLight.withOpacity(.5);
+            return primaryLight.withValues(alpha: 0.5);
           }
-          return Colors.grey.withOpacity(.5);
+          return Colors.grey.withValues(alpha: 0.5);
         }),
       ),
       snackBarTheme: SnackBarThemeData(
@@ -410,7 +411,7 @@ class ModernBackgroundPainter extends CustomPainter {
 
     // Draw circle decorations
     final circlePaint = Paint()
-      ..color = Colors.white.withOpacity(0.1)
+      ..color = Colors.white.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
     // Draw random circles for decoration

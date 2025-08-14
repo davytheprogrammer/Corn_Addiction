@@ -15,7 +15,8 @@ class CornAddictionTheme {
   static const Color primaryLight = Color(0xFF66BB6A); // Light green
   static const Color primaryDark = Color(0xFF1B5E20); // Dark green
   static const Color accent = Color(0xFFF57C00); // Orange
-  static const Color background = Color(0xFFF5F9F6); // Light green-tinted background
+  static const Color background =
+      Color(0xFFF5F9F6); // Light green-tinted background
   static const Color error = Color(0xFFD32F2F); // Red
   static const Color success = Color(0xFF388E3C); // Green
   static const Color warning = Color(0xFFFFA000); // Amber
@@ -173,7 +174,7 @@ class CornAddictionTheme {
           ),
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -213,7 +214,7 @@ class CornAddictionTheme {
       checkboxTheme: CheckboxThemeData(
         fillColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.32);
+            return Colors.grey.withValues(alpha: 0.32);
           }
           return primary;
         }),
@@ -224,7 +225,7 @@ class CornAddictionTheme {
       radioTheme: RadioThemeData(
         fillColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.32);
+            return Colors.grey.withValues(alpha: 0.32);
           }
           return primary;
         }),
@@ -232,7 +233,7 @@ class CornAddictionTheme {
       switchTheme: SwitchThemeData(
         thumbColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.32);
+            return Colors.grey.withValues(alpha: 0.32);
           }
           if (states.contains(MaterialState.selected)) {
             return primary;
@@ -241,23 +242,17 @@ class CornAddictionTheme {
         }),
         trackColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.12);
+            return Colors.grey.withValues(alpha: 0.12);
           }
           if (states.contains(MaterialState.selected)) {
-            return primary.withOpacity(.5);
+            return primary.withValues(alpha: 0.5);
           }
-          return Colors.grey.withOpacity(.5);
+          return Colors.grey.withValues(alpha: 0.5);
         }),
       ),
-      tabBarTheme: const TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: Colors.white,
         unselectedLabelColor: Colors.white60,
-        indicator: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.white, width: 3),
-          ),
-        ),
-      ).copyWith(
         labelStyle: GoogleFonts.poppins(
           fontSize: 14,
           fontWeight: FontWeight.w600,
@@ -266,8 +261,13 @@ class CornAddictionTheme {
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
+        indicator: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.white, width: 3),
+          ),
+        ),
       ),
-      dialogTheme: const DialogTheme().copyWith(
+      dialogTheme: DialogThemeData(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -392,7 +392,7 @@ class CornAddictionTheme {
           ),
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: darkSurface,
         elevation: 2,
         shape: RoundedRectangleBorder(
@@ -402,7 +402,7 @@ class CornAddictionTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: darkSurface.withOpacity(0.8),
+        fillColor: darkSurface.withValues(alpha: 0.8),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
@@ -433,7 +433,7 @@ class CornAddictionTheme {
       checkboxTheme: CheckboxThemeData(
         fillColor: MaterialStateProperty.resolveWith<Color>((states) {
           if (states.contains(MaterialState.disabled)) {
-            return Colors.grey.withOpacity(.32);
+            return Colors.grey.withValues(alpha: 0.32);
           }
           return primaryLight;
         }),
@@ -469,7 +469,7 @@ class CornAddictionTheme {
           return Colors.grey.withOpacity(.5);
         }),
       ),
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: Colors.white,
         unselectedLabelColor: Colors.white.withOpacity(0.6),
         labelStyle: GoogleFonts.poppins(
@@ -486,7 +486,7 @@ class CornAddictionTheme {
           ),
         ),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: darkSurface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -540,10 +540,8 @@ class ModernBackgroundPainter extends CustomPainter {
   final double animation;
   final Color primaryColor;
 
-  ModernBackgroundPainter({
-    required this.animation, 
-    required this.primaryColor
-  });
+  ModernBackgroundPainter(
+      {required this.animation, required this.primaryColor});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -578,15 +576,18 @@ class ModernBackgroundPainter extends CustomPainter {
     for (int i = 0; i < 20; i++) {
       final progress = animation;
       final offset = i * (math.pi / 10);
-      final x = size.width * (0.1 + 0.8 * ((math.sin(progress + offset) + 1) / 2));
-      final y = size.height * (0.1 + 0.8 * ((math.cos(progress * 0.7 + offset) + 1) / 2));
-      final radius = size.width * 0.05 * ((math.sin(progress * 1.2 + offset) + 1.5) / 2.5);
+      final x =
+          size.width * (0.1 + 0.8 * ((math.sin(progress + offset) + 1) / 2));
+      final y = size.height *
+          (0.1 + 0.8 * ((math.cos(progress * 0.7 + offset) + 1) / 2));
+      final radius =
+          size.width * 0.05 * ((math.sin(progress * 1.2 + offset) + 1.5) / 2.5);
 
       // Add depth with a subtle shadow
       final shadowPaint = Paint()
         ..color = Colors.black.withOpacity(0.04)
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawCircle(Offset(x + 2, y + 2), radius, shadowPaint);
       canvas.drawCircle(Offset(x, y), radius, patternPaint);
     }
@@ -597,51 +598,51 @@ class ModernBackgroundPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
-    final pathCount = 6;  // Increased from 5 to 6
+    final pathCount = 6; // Increased from 5 to 6
     for (int i = 0; i < pathCount; i++) {
       final path = Path();
       final startY = size.height * (i / pathCount);
 
       path.moveTo(0, startY);
 
-      for (double x = 0; x <= size.width; x += size.width / 25) {  // Increased detail
+      for (double x = 0; x <= size.width; x += size.width / 25) {
+        // Increased detail
         final offset = i * 0.5;
         final normalizedX = x / size.width;
-        final y = startY + size.height * 0.1 * math.sin(normalizedX * 6 + animation + offset);
+        final y = startY +
+            size.height * 0.1 * math.sin(normalizedX * 6 + animation + offset);
         path.lineTo(x, y);
       }
 
       canvas.drawPath(path, linePaint);
     }
-    
+
     // Add subtle particle effect
-    final random = math.Random(42);  // Fixed seed for consistency
+    final random = math.Random(42); // Fixed seed for consistency
     final particlePaint = Paint()
       ..color = Colors.white.withOpacity(0.4)
       ..style = PaintingStyle.fill;
-      
+
     for (int i = 0; i < 40; i++) {
       final x = random.nextDouble() * size.width;
       final y = random.nextDouble() * size.height;
       final particleRadius = 1.0 + random.nextDouble() * 1.5;
       final opacity = 0.1 + random.nextDouble() * 0.3;
-      
+
       particlePaint.color = Colors.white.withOpacity(opacity);
-      
+
       canvas.drawCircle(
-        Offset(
-          x + math.sin(animation * 0.5 + i) * 2,
-          y + math.cos(animation * 0.7 + i) * 2
-        ), 
-        particleRadius, 
-        particlePaint
-      );
+          Offset(x + math.sin(animation * 0.5 + i) * 2,
+              y + math.cos(animation * 0.7 + i) * 2),
+          particleRadius,
+          particlePaint);
     }
   }
 
   @override
   bool shouldRepaint(ModernBackgroundPainter oldDelegate) =>
-      oldDelegate.animation != animation || oldDelegate.primaryColor != primaryColor;
+      oldDelegate.animation != animation ||
+      oldDelegate.primaryColor != primaryColor;
 }
 
 // Animation controller setup helper
@@ -670,14 +671,14 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
   void initState() {
     super.initState();
     _backgroundController = AnimationController(
-      duration: const Duration(seconds: 30),  // Increased for smoother animation
+      duration: const Duration(seconds: 30), // Increased for smoother animation
       vsync: this,
     );
-    
+
     if (!widget.reducedMotion) {
       _backgroundController.repeat();
     } else {
-      _backgroundController.value = 0.5;  // Fixed position for reduced motion
+      _backgroundController.value = 0.5; // Fixed position for reduced motion
     }
 
     _backgroundAnimation = Tween<double>(

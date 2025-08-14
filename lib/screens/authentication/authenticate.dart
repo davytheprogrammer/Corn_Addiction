@@ -1,6 +1,10 @@
 // authenticate.dart
 import 'package:flutter/material.dart';
 
+import 'login.dart';
+import 'register.dart';
+import 'welcome.dart';
+
 
 class Authenticate extends StatefulWidget {
   const Authenticate({Key? key}) : super(key: key);

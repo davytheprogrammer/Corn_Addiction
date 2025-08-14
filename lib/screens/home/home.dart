@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:corn_addiction/core/constants/app_colors.dart';
-import 'package:corn_addiction/screens/dashboard.dart';
 import 'package:corn_addiction/screens/chat.dart';
 import 'package:corn_addiction/screens/settings.dart';
 import 'package:corn_addiction/screens/stats/stats_screen.dart';
-import 'package:corn_addiction/screens/tools/tools_screen.dart';
+
+import '../dashboard.dart';
+import '../tools/tools_screen.dart';
 
 // Provider for the selected tab
 final selectedTabProvider = StateProvider<int>((ref) => 0);
@@ -18,15 +19,16 @@ class HomePage extends ConsumerStatefulWidget {
   ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends ConsumerState<HomePage>
+    with SingleTickerProviderStateMixin {
   late List<Widget> _screens;
   late AnimationController _fabAnimationController;
   late Animation<double> _fabScaleAnimation;
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     // Set up screens
     _screens = [
       const DashboardScreen(),
@@ -35,13 +37,13 @@ class _HomePageState extends ConsumerState<HomePage> with SingleTickerProviderSt
       const ChatScreen(),
       const Settings(),
     ];
-    
+
     // Set up FAB animations
     _fabAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-    
+
     _fabScaleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -49,7 +51,7 @@ class _HomePageState extends ConsumerState<HomePage> with SingleTickerProviderSt
       parent: _fabAnimationController,
       curve: Curves.easeOut,
     ));
-    
+
     _fabAnimationController.forward();
   }
 
@@ -62,7 +64,7 @@ class _HomePageState extends ConsumerState<HomePage> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final selectedTab = ref.watch(selectedTabProvider);
-    
+
     return Scaffold(
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
@@ -73,66 +75,114 @@ class _HomePageState extends ConsumerState<HomePage> with SingleTickerProviderSt
       bottomNavigationBar: _buildBottomNavBar(selectedTab),
     );
   }
-  
+
   Widget? _buildFAB(int selectedTab) {
     // Only show FAB on certain tabs
     if (selectedTab == 0 || selectedTab == 1) {
       return ScaleTransition(
         scale: _fabScaleAnimation,
-        child: FloatingActionButton(
-          onPressed: () => _showLogUrgeBottomSheet(),
-          backgroundColor: AppColors.accent,
-          elevation: 4,
-          child: const Icon(Icons.warning_amber_rounded, color: Colors.white),
+        child: Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.accent,
+                AppColors.accent.withValues(alpha: 0.8),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.accent.withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+                spreadRadius: 0,
+              ),
+              BoxShadow(
+                color: AppColors.accent.withValues(alpha: 0.2),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: FloatingActionButton(
+            onPressed: () => _showLogUrgeBottomSheet(),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: const Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
         ),
       );
     }
     return null;
   }
-  
+
   Widget _buildBottomNavBar(int selectedTab) {
     return Container(
       decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 12,
-            offset: const Offset(0, -2),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 40,
+            offset: const Offset(0, -8),
+            spreadRadius: 0,
           ),
         ],
       ),
       child: BottomAppBar(
-        notchMargin: 8,
+        color: Colors.transparent,
+        notchMargin: 12,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
         shape: const CircularNotch(
-          notchMargin: 8,
-          notchRadius: 28,
+          notchMargin: 12,
+          notchRadius: 32,
         ),
         child: Container(
-          height: 60,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          height: 90,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(0, Icons.dashboard_rounded, 'Dashboard'),
-              _buildNavItem(1, Icons.insert_chart_rounded, 'Stats'),
-              const SizedBox(width: 40), // Space for FAB
-              _buildNavItem(3, Icons.chat_rounded, 'Chat'),
-              _buildNavItem(4, Icons.settings_rounded, 'Settings'),
+              Expanded(
+                  child:
+                      _buildNavItem(0, Icons.dashboard_rounded, 'Dashboard')),
+              Expanded(
+                  child: _buildNavItem(1, Icons.insert_chart_rounded, 'Stats')),
+              const SizedBox(width: 56), // Space for FAB
+              Expanded(child: _buildNavItem(3, Icons.chat_rounded, 'Chat')),
+              Expanded(
+                  child: _buildNavItem(4, Icons.settings_rounded, 'Settings')),
             ],
           ),
         ),
       ),
     );
   }
-  
+
   Widget _buildNavItem(int index, IconData icon, String label) {
     final isSelected = ref.watch(selectedTabProvider) == index;
-    
+
     return InkWell(
       onTap: () {
         ref.read(selectedTabProvider.notifier).state = index;
-        
+
         // Animate FAB when needed
         if (index == 0 || index == 1) {
           if (!_fabAnimationController.isCompleted) {
@@ -143,30 +193,58 @@ class _HomePageState extends ConsumerState<HomePage> with SingleTickerProviderSt
         }
       },
       borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.12)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: isSelected
+              ? Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.2),
+                  width: 1,
+                )
+              : null,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? AppColors.primary : Colors.grey,
-              size: 24,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.primary.withValues(alpha: 0.15)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                size: 24,
+              ),
             ),
+            const SizedBox(height: 6),
             Text(
               label,
               style: GoogleFonts.poppins(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? AppColors.primary : Colors.grey,
+                color: isSelected ? AppColors.primary : AppColors.textSecondary,
               ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
       ),
     );
   }
-  
+
   void _showLogUrgeBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -194,34 +272,40 @@ class CircularNotch implements NotchedShape {
     }
 
     final notchRadius = this.notchRadius;
-    const s1 = 15.0;
-    const s2 = 1.0;
+    const s1 = 18.0;
+    const s2 = 2.0;
 
     final r = notchRadius;
     final x = guest.center.dx;
     final y = host.top;
-    
+
     final double notchX1 = x - r - notchMargin / 2;
     final double notchX2 = x + r + notchMargin / 2;
-    
+
     final path = Path()
       ..moveTo(host.left, host.top)
       ..lineTo(notchX1, host.top)
       ..cubicTo(
-        notchX1 + s1, host.top,
-        notchX1 + s2, y + r,
-        x, y + r,
+        notchX1 + s1,
+        host.top,
+        notchX1 + s2,
+        y + r,
+        x,
+        y + r,
       )
       ..cubicTo(
-        notchX2 - s2, y + r,
-        notchX2 - s1, host.top,
-        notchX2, host.top,
+        notchX2 - s2,
+        y + r,
+        notchX2 - s1,
+        host.top,
+        notchX2,
+        host.top,
       )
       ..lineTo(host.right, host.top)
       ..lineTo(host.right, host.bottom)
       ..lineTo(host.left, host.bottom)
       ..close();
-    
+
     return path;
   }
 }
@@ -302,10 +386,12 @@ class _LogUrgeBottomSheetState extends State<LogUrgeBottomSheet> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               decoration: BoxDecoration(
-                color: _getUrgeIntensityColor(urgeIntensity).withOpacity(0.1),
+                color: _getUrgeIntensityColor(urgeIntensity)
+                    .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: _getUrgeIntensityColor(urgeIntensity).withOpacity(0.3),
+                  color: _getUrgeIntensityColor(urgeIntensity)
+                      .withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -343,17 +429,23 @@ class _LogUrgeBottomSheetState extends State<LogUrgeBottomSheet> {
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      Text('1', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+                      Text('1',
+                          style:
+                              GoogleFonts.poppins(fontWeight: FontWeight.w500)),
                       Expanded(
                         child: SliderTheme(
                           data: SliderThemeData(
                             trackHeight: 8,
-                            activeTrackColor: _getUrgeIntensityColor(urgeIntensity),
+                            activeTrackColor:
+                                _getUrgeIntensityColor(urgeIntensity),
                             inactiveTrackColor: Colors.grey[300],
                             thumbColor: _getUrgeIntensityColor(urgeIntensity),
-                            overlayColor: _getUrgeIntensityColor(urgeIntensity).withOpacity(0.2),
-                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 24),
+                            overlayColor: _getUrgeIntensityColor(urgeIntensity)
+                                .withValues(alpha: 0.2),
+                            thumbShape: const RoundSliderThumbShape(
+                                enabledThumbRadius: 12),
+                            overlayShape: const RoundSliderOverlayShape(
+                                overlayRadius: 24),
                           ),
                           child: Slider(
                             value: urgeIntensity,
@@ -368,7 +460,9 @@ class _LogUrgeBottomSheetState extends State<LogUrgeBottomSheet> {
                           ),
                         ),
                       ),
-                      Text('10', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+                      Text('10',
+                          style:
+                              GoogleFonts.poppins(fontWeight: FontWeight.w500)),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -396,10 +490,10 @@ class _LogUrgeBottomSheetState extends State<LogUrgeBottomSheet> {
             const SizedBox(height: 24),
             Container(
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: Colors.red.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: Colors.red.withOpacity(0.3),
+                  color: Colors.red.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),

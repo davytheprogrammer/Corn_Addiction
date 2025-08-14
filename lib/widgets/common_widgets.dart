@@ -36,7 +36,7 @@ class PrimaryButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor ?? AppColors.primary,
           padding: padding ?? const EdgeInsets.symmetric(horizontal: 24),
-          disabledBackgroundColor: AppColors.primary.withOpacity(0.5),
+          disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.5),
         ),
         child: isLoading
             ? const SizedBox(
@@ -226,7 +226,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   void initState() {
     super.initState();
     _obscureText = widget.obscureText;
-    
+
     if (widget.controller != null) {
       _controller = widget.controller!;
     } else {
@@ -425,7 +425,7 @@ class LoadingOverlay extends StatelessWidget {
         child,
         if (isLoading)
           Container(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -481,7 +481,7 @@ class EmptyStateWidget extends StatelessWidget {
             Icon(
               icon,
               size: iconSize,
-              color: AppColors.textSecondary.withOpacity(0.5),
+              color: AppColors.textSecondary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 24),
             Text(
@@ -581,7 +581,7 @@ class StreakCounterBadge extends StatelessWidget {
               color: AppColors.surface,
               boxShadow: [
                 BoxShadow(
-                  color: streakColor.withOpacity(0.3),
+                  color: streakColor.withValues(alpha: 0.3),
                   blurRadius: 8,
                   spreadRadius: 2,
                 ),
@@ -643,7 +643,7 @@ class AchievementBadge extends StatelessWidget {
               boxShadow: isUnlocked
                   ? [
                       BoxShadow(
-                        color: badgeColor.withOpacity(0.3),
+                        color: badgeColor.withValues(alpha: 0.3),
                         blurRadius: 8,
                         spreadRadius: 2,
                       ),

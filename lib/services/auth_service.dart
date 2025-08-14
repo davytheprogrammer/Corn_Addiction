@@ -49,7 +49,10 @@ class AuthService {
       recoveryStartDate: DateTime.now(),
     );
 
-    await _firestore.collection('users').doc(user.uid).set(userModel.toFirestore());
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .set(userModel.toFirestore());
   }
 
   Future<void> _updateLastActive(String uid) async {

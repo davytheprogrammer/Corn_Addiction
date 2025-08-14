@@ -1,9 +1,11 @@
+import 'package:corn_addiction/utils/texture_manager.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
-import 'package:corn_addiction/core/theme/app_theme.dart';
-import 'package:corn_addiction/core/constants/colors.dart';
+import 'dart:math' as math;
+import 'dart:math' show Random;
+import 'package:corn_addiction/core/constants/app_colors.dart';
 import 'package:corn_addiction/providers/auth_provider.dart';
 import 'package:corn_addiction/app.dart';
 import 'package:corn_addiction/wrapper.dart';
@@ -65,19 +67,76 @@ void main() async {
 }
 
 class RecoveryApp extends ConsumerWidget {
-  const RecoveryApp({Key? key}) : super(key: key);
+  const RecoveryApp({super.key});
+
+  ThemeData _buildLightTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        brightness: Brightness.light,
+        surface: Colors.white,
+      ),
+      scaffoldBackgroundColor: AppColors.background,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.textPrimary,
+        elevation: 0,
+        centerTitle: true,
+        surfaceTintColor: Colors.transparent,
+      ),
+      bottomAppBarTheme: const BottomAppBarTheme(
+        color: Colors.white,
+        elevation: 8,
+        surfaceTintColor: Colors.transparent,
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Colors.white,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondary,
+        elevation: 8,
+      ),
+      cardTheme: const CardThemeData(
+        color: Colors.white,
+        elevation: 2,
+        surfaceTintColor: Colors.transparent,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+  }
+
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        brightness: Brightness.dark,
+      ),
+      scaffoldBackgroundColor: const Color(0xFF121212),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'CornAddiction',
-      theme: AppTheme.lightTheme(),
+      theme: _buildLightTheme(),
+      darkTheme: _buildDarkTheme(),
+      themeMode: ThemeMode.light, // Default to light theme
       initialRoute: Routes.wrapper,
       routes: {
-        Routes.wrapper: (context) => const AnimatedBackground(
-          primaryColor: AppColors.primary,
-          child: Wrapper(),
-        ),
+        Routes.wrapper: (context) => AnimatedBackground(
+              primaryColor: AppColors.primary,
+              child: const Wrapper(),
+            ),
         Routes.app: (context) => const App(),
       },
       debugShowCheckedModeBanner: false,
@@ -92,11 +151,11 @@ class AnimatedBackground extends StatefulWidget {
   final bool reducedMotion;
 
   const AnimatedBackground({
-    Key? key,
+    super.key,
     required this.child,
     required this.primaryColor,
     this.reducedMotion = false,
-  }) : super(key: key);
+  });
 
   @override
   State<AnimatedBackground> createState() => _AnimatedBackgroundState();
@@ -111,14 +170,14 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
   void initState() {
     super.initState();
     _backgroundController = AnimationController(
-      duration: const Duration(seconds: 30),  // Increased for smoother animation
+      duration: const Duration(seconds: 30), // Increased for smoother animation
       vsync: this,
     );
-    
+
     if (!widget.reducedMotion) {
       _backgroundController.repeat();
     } else {
-      _backgroundController.value = 0.5;  // Fixed position for reduced motion
+      _backgroundController.value = 0.5; // Fixed position for reduced motion
     }
 
     _backgroundAnimation = Tween<double>(
@@ -163,8 +222,8 @@ class ModernBackgroundPainter extends CustomPainter {
   final Color primaryColor;
 
   ModernBackgroundPainter({
-    required this.animation, 
-    required this.primaryColor
+    required this.animation,
+    required this.primaryColor,
   });
 
   @override
@@ -175,7 +234,7 @@ class ModernBackgroundPainter extends CustomPainter {
       colors: [
         AppColors.gradientStart,
         AppColors.gradientEnd,
-        AppColors.learningHubGradient1,
+        AppColors.primary,
       ],
       stops: const [0.0, 0.5, 1.0],
     );
@@ -193,7 +252,7 @@ class ModernBackgroundPainter extends CustomPainter {
 
     // Draw animated patterns
     final patternPaint = Paint()
-      ..color = Colors.white.withOpacity(0.09)
+      ..color = Colors.white.withValues(alpha: 0.09)
       ..style = PaintingStyle.fill;
 
     // Draw animated circles with improved depth
@@ -201,79 +260,76 @@ class ModernBackgroundPainter extends CustomPainter {
       final progress = animation;
       final offset = i * (3.14159 / 10);
       final x = size.width * (0.1 + 0.8 * ((sin(progress + offset) + 1) / 2));
-      final y = size.height * (0.1 + 0.8 * ((cos(progress * 0.7 + offset) + 1) / 2));
-      final radius = size.width * 0.05 * ((sin(progress * 1.2 + offset) + 1.5) / 2.5);
+      final y =
+          size.height * (0.1 + 0.8 * ((cos(progress * 0.7 + offset) + 1) / 2));
+      final radius =
+          size.width * 0.05 * ((sin(progress * 1.2 + offset) + 1.5) / 2.5);
 
       // Add depth with a subtle shadow
       final shadowPaint = Paint()
-        ..color = Colors.black.withOpacity(0.04)
+        ..color = Colors.black.withValues(alpha: 0.04)
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawCircle(Offset(x + 2, y + 2), radius, shadowPaint);
       canvas.drawCircle(Offset(x, y), radius, patternPaint);
     }
 
     // Draw enhanced flowing lines
     final linePaint = Paint()
-      ..color = Colors.white.withOpacity(0.06)
+      ..color = Colors.white.withValues(alpha: 0.06)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
-    final pathCount = 6;  // Increased from 5 to 6
+    final pathCount = 6; // Increased from 5 to 6
     for (int i = 0; i < pathCount; i++) {
       final path = Path();
       final startY = size.height * (i / pathCount);
 
       path.moveTo(0, startY);
 
-      for (double x = 0; x <= size.width; x += size.width / 25) {  // Increased detail
+      for (double x = 0; x <= size.width; x += size.width / 25) {
+        // Increased detail
         final offset = i * 0.5;
         final normalizedX = x / size.width;
-        final y = startY + size.height * 0.1 * sin(normalizedX * 6 + animation + offset);
+        final y = startY +
+            size.height * 0.1 * sin(normalizedX * 6 + animation + offset);
         path.lineTo(x, y);
       }
 
       canvas.drawPath(path, linePaint);
     }
-    
+
     // Add subtle particle effect
-    final random = Random(42);  // Fixed seed for consistency
+    final random = Random(42); // Fixed seed for consistency
     final particlePaint = Paint()
-      ..color = Colors.white.withOpacity(0.4)
+      ..color = Colors.white.withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
-      
+
     for (int i = 0; i < 40; i++) {
       final x = random.nextDouble() * size.width;
       final y = random.nextDouble() * size.height;
       final particleRadius = 1.0 + random.nextDouble() * 1.5;
       final opacity = 0.1 + random.nextDouble() * 0.3;
-      
-      particlePaint.color = Colors.white.withOpacity(opacity);
-      
+
+      particlePaint.color = Colors.white.withValues(alpha: opacity);
+
       canvas.drawCircle(
-        Offset(
-          x + sin(animation * 0.5 + i) * 2,
-          y + cos(animation * 0.7 + i) * 2
-        ), 
-        particleRadius, 
-        particlePaint
-      );
+          Offset(x + sin(animation * 0.5 + i) * 2,
+              y + cos(animation * 0.7 + i) * 2),
+          particleRadius,
+          particlePaint);
     }
   }
 
   @override
   bool shouldRepaint(ModernBackgroundPainter oldDelegate) =>
-      oldDelegate.animation != animation || oldDelegate.primaryColor != primaryColor;
-      
+      oldDelegate.animation != animation ||
+      oldDelegate.primaryColor != primaryColor;
+
   // Math helpers for the background
   double sin(double x) => math.sin(x);
   double cos(double x) => math.cos(x);
 }
-
-// Import at the end to avoid circular dependencies
-import 'dart:math' as math;
-import 'dart:ui';
-import 'dart:math' show Random;
 
 class BackgroundWrapper extends ConsumerWidget {
   const BackgroundWrapper({super.key});
@@ -283,7 +339,7 @@ class BackgroundWrapper extends ConsumerWidget {
     final authState = ref.watch(authStateProvider);
 
     return AnimatedBackground(
-      primaryColor: AppColors.primaryColor,
+      primaryColor: AppColors.primary,
       child: authState.when(
         data: (user) => const Wrapper(),
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -296,12 +352,12 @@ class BackgroundWrapper extends ConsumerWidget {
 class BackgroundPage extends StatelessWidget {
   final Widget child;
 
-  const BackgroundPage({Key? key, required this.child}) : super(key: key);
+  const BackgroundPage({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBackground(
-      primaryColor: AppColors.primaryColor,
+      primaryColor: AppColors.primary,
       child: child,
     );
   }

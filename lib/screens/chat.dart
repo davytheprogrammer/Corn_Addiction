@@ -7,7 +7,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:animate_do/animate_do.dart' show FadeIn, FadeInUp;
+import 'package:animate_do/animate_do.dart';
 import 'package:share_plus/share_plus.dart';
 import 'home/constants/colors.dart';
 

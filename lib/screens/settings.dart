@@ -32,7 +32,13 @@ class _SettingsState extends State<Settings> {
 
   // Connection status
   bool _isConnected = true;
-  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
+
+  void _updateConnectionStatus(ConnectivityResult result) {
+    setState(() {
+      _isConnected = result != ConnectivityResult.none;
+    });
+  }
 
   bool _isLoading = true;
   bool _isClearingCache = false;
@@ -46,11 +52,8 @@ class _SettingsState extends State<Settings> {
     _getCurrentUser();
     _checkConnectivity();
     _connectivitySubscription =
-        Connectivity().onConnectivityChanged.listen((results) {
-      // Handle the first connectivity result in the list
-      if (results.isNotEmpty) {
-        _updateConnectionStatus(results.first);
-      }
+        Connectivity().onConnectivityChanged.listen((result) {
+      _updateConnectionStatus(result);
     });
     _loadSettings();
   }
@@ -79,16 +82,10 @@ class _SettingsState extends State<Settings> {
   Future<void> _checkConnectivity() async {
     try {
       final connectivityResult = await Connectivity().checkConnectivity();
-      _updateConnectionStatus(connectivityResult.first);
+      _updateConnectionStatus(connectivityResult);
     } catch (e) {
       debugPrint('Error checking connectivity: $e');
     }
-  }
-
-  void _updateConnectionStatus(ConnectivityResult result) {
-    setState(() {
-      _isConnected = result != ConnectivityResult.none;
-    });
   }
 
   Future<void> _loadSettings() async {
@@ -708,7 +705,7 @@ class _SettingsState extends State<Settings> {
     final isTablet = ResponsiveUtils.isTablet(context);
     final isDesktop = ResponsiveUtils.isDesktop(context);
     final screenPadding = ResponsiveUtils.getScreenPadding(context);
-    
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       body: SafeArea(
@@ -732,7 +729,8 @@ class _SettingsState extends State<Settings> {
                                   padding: screenPadding,
                                   children: [
                                     _buildAccountSection(),
-                                    ResponsiveUtils.getVerticalSpacing(context, 24),
+                                    ResponsiveUtils.getVerticalSpacing(
+                                        context, 24),
                                     _buildPreferencesSection(),
                                   ],
                                 ),
@@ -743,9 +741,11 @@ class _SettingsState extends State<Settings> {
                                   padding: screenPadding,
                                   children: [
                                     _buildDataSection(),
-                                    ResponsiveUtils.getVerticalSpacing(context, 24),
+                                    ResponsiveUtils.getVerticalSpacing(
+                                        context, 24),
                                     _buildAboutSection(),
-                                    ResponsiveUtils.getVerticalSpacing(context, 16),
+                                    ResponsiveUtils.getVerticalSpacing(
+                                        context, 16),
                                   ],
                                 ),
                               ),
@@ -774,7 +774,7 @@ class _SettingsState extends State<Settings> {
   Widget _buildHeader() {
     final isTablet = ResponsiveUtils.isTablet(context);
     final isDesktop = ResponsiveUtils.isDesktop(context);
-    
+
     return Padding(
       padding: ResponsiveUtils.getScreenPadding(context),
       child: Row(
@@ -790,14 +790,26 @@ class _SettingsState extends State<Settings> {
           ),
           Container(
             padding: EdgeInsets.symmetric(
-              horizontal: isDesktop ? 14 : isTablet ? 12 : 10,
-              vertical: isDesktop ? 8 : isTablet ? 7 : 6,
+              horizontal: isDesktop
+                  ? 14
+                  : isTablet
+                      ? 12
+                      : 10,
+              vertical: isDesktop
+                  ? 8
+                  : isTablet
+                      ? 7
+                      : 6,
             ),
             decoration: BoxDecoration(
               color: _isConnected
                   ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
                   : Colors.orange.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(isDesktop ? 24 : isTablet ? 22 : 20),
+              borderRadius: BorderRadius.circular(isDesktop
+                  ? 24
+                  : isTablet
+                      ? 22
+                      : 20),
             ),
             child: Row(
               children: [
@@ -808,7 +820,12 @@ class _SettingsState extends State<Settings> {
                       ? Theme.of(context).colorScheme.primary
                       : Colors.orange,
                 ),
-                SizedBox(width: isDesktop ? 6 : isTablet ? 5 : 4),
+                SizedBox(
+                    width: isDesktop
+                        ? 6
+                        : isTablet
+                            ? 5
+                            : 4),
                 Text(
                   _isConnected ? 'Online' : 'Offline',
                   style: GoogleFonts.poppins(

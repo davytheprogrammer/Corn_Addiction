@@ -37,6 +37,7 @@ dependencies:
   path_provider: ^2.1.2
   connectivity_plus: ^5.0.2
   flutter_animate: ^4.5.0
+  animate_do: any
   
   # Markdown & Sharing
   flutter_markdown: ^0.6.18
@@ -53,3 +54,4 @@ flutter:
   assets:
     - assets/images/
     - assets/documents/
+    - assets/animations/
