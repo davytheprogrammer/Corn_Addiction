@@ -159,8 +159,8 @@ class _HomePageState extends ConsumerState<HomePage>
           notchRadius: 32,
         ),
         child: Container(
-          height: 110,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          height: 130,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -200,7 +200,7 @@ class _HomePageState extends ConsumerState<HomePage>
       borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.12)
@@ -219,7 +219,7 @@ class _HomePageState extends ConsumerState<HomePage>
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.primary.withValues(alpha: 0.15)
@@ -232,7 +232,7 @@ class _HomePageState extends ConsumerState<HomePage>
                 size: 24,
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 2),
             Text(
               label,
               style: GoogleFonts.poppins(

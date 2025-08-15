@@ -6,7 +6,9 @@ import 'package:flutter/services.dart';
 import 'dart:math' as math;
 import 'dart:math' show Random;
 import 'package:corn_addiction/core/constants/app_colors.dart';
+import 'package:corn_addiction/core/theme/app_theme.dart';
 import 'package:corn_addiction/providers/auth_provider.dart';
+import 'package:corn_addiction/providers/theme_provider.dart' as theme;
 import 'package:corn_addiction/app.dart';
 import 'package:corn_addiction/wrapper.dart';
 
@@ -69,68 +71,15 @@ void main() async {
 class RecoveryApp extends ConsumerWidget {
   const RecoveryApp({super.key});
 
-  ThemeData _buildLightTheme() {
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
-        brightness: Brightness.light,
-        surface: Colors.white,
-      ),
-      scaffoldBackgroundColor: AppColors.background,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
-        elevation: 0,
-        centerTitle: true,
-        surfaceTintColor: Colors.transparent,
-      ),
-      bottomAppBarTheme: const BottomAppBarTheme(
-        color: Colors.white,
-        elevation: 8,
-        surfaceTintColor: Colors.transparent,
-      ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Colors.white,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
-        elevation: 8,
-      ),
-      cardTheme: const CardThemeData(
-        color: Colors.white,
-        elevation: 2,
-        surfaceTintColor: Colors.transparent,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      ),
-    );
-  }
-
-  ThemeData _buildDarkTheme() {
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
-        brightness: Brightness.dark,
-      ),
-      scaffoldBackgroundColor: const Color(0xFF121212),
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(theme.themeProvider);
+
     return MaterialApp(
       title: 'CornAddiction',
-      theme: _buildLightTheme(),
-      darkTheme: _buildDarkTheme(),
-      themeMode: ThemeMode.light, // Default to light theme
+      theme: AppTheme.lightTheme(),
+      darkTheme: AppTheme.darkTheme(),
+      themeMode: _getFlutterThemeMode(themeMode),
       initialRoute: Routes.wrapper,
       routes: {
         Routes.wrapper: (context) => AnimatedBackground(
@@ -141,6 +90,17 @@ class RecoveryApp extends ConsumerWidget {
       },
       debugShowCheckedModeBanner: false,
     );
+  }
+
+  ThemeMode _getFlutterThemeMode(theme.ThemeMode mode) {
+    switch (mode) {
+      case theme.ThemeMode.light:
+        return ThemeMode.light;
+      case theme.ThemeMode.dark:
+        return ThemeMode.dark;
+      case theme.ThemeMode.system:
+        return ThemeMode.system;
+    }
   }
 }
 
@@ -194,6 +154,8 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -205,6 +167,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
               painter: ModernBackgroundPainter(
                 animation: _backgroundAnimation.value,
                 primaryColor: widget.primaryColor,
+                isDark: isDark,
               ),
               child: Container(),
             );
@@ -220,10 +183,12 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
 class ModernBackgroundPainter extends CustomPainter {
   final double animation;
   final Color primaryColor;
+  final bool isDark;
 
   ModernBackgroundPainter({
     required this.animation,
     required this.primaryColor,
+    required this.isDark,
   });
 
   @override
@@ -231,11 +196,17 @@ class ModernBackgroundPainter extends CustomPainter {
     final gradient = LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [
-        AppColors.gradientStart,
-        AppColors.gradientEnd,
-        AppColors.primary,
-      ],
+      colors: isDark
+          ? [
+              const Color(0xFF1A1A1A),
+              const Color(0xFF2D2D2D),
+              const Color(0xFF1E1E1E),
+            ]
+          : [
+              AppColors.gradientStart,
+              AppColors.gradientEnd,
+              AppColors.primary,
+            ],
       stops: const [0.0, 0.5, 1.0],
     );
 
@@ -252,7 +223,8 @@ class ModernBackgroundPainter extends CustomPainter {
 
     // Draw animated patterns
     final patternPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.09)
+      ..color = (isDark ? Colors.white : Colors.white)
+          .withValues(alpha: isDark ? 0.05 : 0.09)
       ..style = PaintingStyle.fill;
 
     // Draw animated circles with improved depth
@@ -267,7 +239,8 @@ class ModernBackgroundPainter extends CustomPainter {
 
       // Add depth with a subtle shadow
       final shadowPaint = Paint()
-        ..color = Colors.black.withValues(alpha: 0.04)
+        ..color = (isDark ? Colors.black : Colors.black)
+            .withValues(alpha: isDark ? 0.08 : 0.04)
         ..style = PaintingStyle.fill;
 
       canvas.drawCircle(Offset(x + 2, y + 2), radius, shadowPaint);
@@ -276,7 +249,7 @@ class ModernBackgroundPainter extends CustomPainter {
 
     // Draw enhanced flowing lines
     final linePaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.06)
+      ..color = Colors.white.withValues(alpha: isDark ? 0.03 : 0.06)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
@@ -302,14 +275,16 @@ class ModernBackgroundPainter extends CustomPainter {
     // Add subtle particle effect
     final random = Random(42); // Fixed seed for consistency
     final particlePaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.4)
+      ..color = Colors.white.withValues(alpha: isDark ? 0.2 : 0.4)
       ..style = PaintingStyle.fill;
 
     for (int i = 0; i < 40; i++) {
       final x = random.nextDouble() * size.width;
       final y = random.nextDouble() * size.height;
       final particleRadius = 1.0 + random.nextDouble() * 1.5;
-      final opacity = 0.1 + random.nextDouble() * 0.3;
+      final opacity = isDark
+          ? (0.05 + random.nextDouble() * 0.15)
+          : (0.1 + random.nextDouble() * 0.3);
 
       particlePaint.color = Colors.white.withValues(alpha: opacity);
 
@@ -324,7 +299,8 @@ class ModernBackgroundPainter extends CustomPainter {
   @override
   bool shouldRepaint(ModernBackgroundPainter oldDelegate) =>
       oldDelegate.animation != animation ||
-      oldDelegate.primaryColor != primaryColor;
+      oldDelegate.primaryColor != primaryColor ||
+      oldDelegate.isDark != isDark;
 
   // Math helpers for the background
   double sin(double x) => math.sin(x);

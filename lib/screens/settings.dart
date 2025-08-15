@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:corn_addiction/shared/responsive_utils.dart';
+import 'package:corn_addiction/widgets/theme_selector.dart';
 import 'dart:async';
 
-class Settings extends StatefulWidget {
+class Settings extends ConsumerStatefulWidget {
   const Settings({Key? key}) : super(key: key);
 
   @override
-  _SettingsState createState() => _SettingsState();
+  ConsumerState<Settings> createState() => _SettingsState();
 }
 
-class _SettingsState extends State<Settings> {
+class _SettingsState extends ConsumerState<Settings> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? _currentUser;
 
@@ -28,7 +30,6 @@ class _SettingsState extends State<Settings> {
 
   // User preferences
   bool _notificationsEnabled = true;
-  bool _darkModeEnabled = true;
 
   // Connection status
   bool _isConnected = true;
@@ -98,7 +99,6 @@ class _SettingsState extends State<Settings> {
 
       setState(() {
         _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
-        _darkModeEnabled = prefs.getBool('dark_mode_enabled') ?? true;
       });
     } catch (e) {
       debugPrint('Error loading settings: $e');
@@ -114,7 +114,6 @@ class _SettingsState extends State<Settings> {
       final prefs = await SharedPreferences.getInstance();
 
       await prefs.setBool('notifications_enabled', _notificationsEnabled);
-      await prefs.setBool('dark_mode_enabled', _darkModeEnabled);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -988,6 +987,8 @@ class _SettingsState extends State<Settings> {
           ),
         ),
         const SizedBox(height: 16),
+        const ThemeSelector(),
+        const SizedBox(height: 16),
         _buildSettingsSwitchCard(
           title: 'Notifications',
           subtitle: 'Receive alerts and updates',
@@ -996,18 +997,6 @@ class _SettingsState extends State<Settings> {
           onChanged: (value) {
             setState(() {
               _notificationsEnabled = value;
-            });
-            _saveSettings();
-          },
-        ),
-        _buildSettingsSwitchCard(
-          title: 'Dark Mode',
-          subtitle: 'Use dark theme',
-          icon: Icons.dark_mode_outlined,
-          value: _darkModeEnabled,
-          onChanged: (value) {
-            setState(() {
-              _darkModeEnabled = value;
             });
             _saveSettings();
           },
