@@ -1001,6 +1001,14 @@ class _SettingsState extends ConsumerState<Settings> {
             _saveSettings();
           },
         ),
+        _buildSettingsCard(
+          title: 'Rewards & Achievements',
+          subtitle: 'View your streak milestones and badges',
+          icon: Icons.emoji_events_outlined,
+          onTap: () {
+            Navigator.pushNamed(context, '/rewards');
+          },
+        ),
       ],
     );
   }

@@ -9,7 +9,7 @@ import 'dart:async';
 
 class WelcomeScreen extends StatefulWidget {
   final Function(bool) onAuthSelect;
-  const WelcomeScreen({Key? key, required this.onAuthSelect}) : super(key: key);
+  const WelcomeScreen({super.key, required this.onAuthSelect});
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -19,7 +19,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     with TickerProviderStateMixin {
   late AnimationController _backgroundController;
   late AnimationController _contentController;
+  late AnimationController _recoveryAnimationController;
   late Animation<double> _backgroundAnimation;
+  late Animation<double> _recoveryAnimation;
 
   bool _isOffline = false;
   bool _previouslyLoggedIn = false;
@@ -36,20 +38,29 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   final List<FeatureItem> _features = [
     FeatureItem(
-      title: 'AI-Powered Diagnostics',
-      description:
-          'Advanced machine learning models for early disease detection',
-      iconData: Icons.pets,
+      title: 'Track Your Sobriety',
+      description: 'Monitor your addiction recovery journey with detailed insights and milestone tracking',
+      iconData: Icons.calendar_today,
     ),
     FeatureItem(
-      title: 'Real-time Monitoring',
-      description: 'Track vital health metrics of your animals 24/7',
-      iconData: Icons.monitor_heart,
+      title: 'Community Support',
+      description: 'Connect with others on the same recovery path in a safe, anonymous environment',
+      iconData: Icons.group,
     ),
     FeatureItem(
-      title: 'Expert Insights',
-      description: 'Access veterinary-backed analysis and recommendations',
-      iconData: Icons.psychology,
+      title: 'Emergency Tools',
+      description: 'Access immediate help and coping strategies when urges or triggers arise',
+      iconData: Icons.health_and_safety,
+    ),
+    FeatureItem(
+      title: 'Daily Motivation',
+      description: 'Receive daily affirmations and evidence-based strategies to maintain your recovery',
+      iconData: Icons.lightbulb_outline,
+    ),
+    FeatureItem(
+      title: 'Achievement Rewards',
+      description: 'Earn badges and rewards as you reach important recovery milestones',
+      iconData: Icons.emoji_events,
     ),
   ];
 
@@ -66,7 +77,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   void _initializeAnimations() {
     _backgroundController = AnimationController(
-      duration: const Duration(seconds: 20),
+      duration: const Duration(seconds: 15),
+      vsync: this,
+    )..repeat();
+
+    _recoveryAnimationController = AnimationController(
+      duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat();
 
@@ -79,6 +95,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       begin: 0.0,
       end: 2 * math.pi,
     ).animate(_backgroundController);
+
+    _recoveryAnimation = Tween<double>(
+      begin: 0.0,
+      end: 2 * math.pi,
+    ).animate(_recoveryAnimationController);
 
     _contentController.forward();
   }
@@ -106,7 +127,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         _isOffline = connectivityResult == ConnectivityResult.none;
       });
 
-      // Listen for connectivity changes
       _connectivitySubscription =
           Connectivity().onConnectivityChanged.listen((result) {
         setState(() {
@@ -165,6 +185,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   void dispose() {
     _backgroundController.dispose();
     _contentController.dispose();
+    _recoveryAnimationController.dispose();
     _scrollController.dispose();
     _featurePageController.dispose();
     _connectivitySubscription?.cancel();
@@ -176,7 +197,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = theme.colorScheme.primary;
+    final primaryColor = const Color(0xFF2E7D32); // Green for recovery theme
     final onPrimaryColor = theme.colorScheme.onPrimary;
     final surfaceColor = theme.colorScheme.surface;
 
@@ -187,7 +208,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         children: [
           // Animated Background
           AnimatedBuilder(
-            animation: _backgroundAnimation,
+            animation: Listenable.merge([_backgroundAnimation, _recoveryAnimation]),
             builder: (context, child) {
               return CustomPaint(
                 painter: ModernBackgroundPainter(
@@ -238,11 +259,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade700.withOpacity(0.9),
+                    color: Colors.red.shade700.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withValues(alpha: 0.15),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
@@ -276,7 +297,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 
   Widget _buildHeader(Color primaryColor) {
-    // Get current date instead of using hardcoded value
     final now = DateTime.now();
     final formattedDate = _formatDate(now);
 
@@ -285,15 +305,15 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Colors.white.withOpacity(0.3),
+            color: Colors.white.withValues(alpha: 0.3),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -313,18 +333,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   String _formatDate(DateTime date) {
     final months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
     ];
 
     final day = date.day;
@@ -359,7 +369,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         ),
         const SizedBox(height: 24),
         Text(
-          'AniWise',
+          'Corn Addiction',
           style: GoogleFonts.montserrat(
             fontSize: 36,
             fontWeight: FontWeight.bold,
@@ -369,7 +379,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         ),
         const SizedBox(height: 8),
         Text(
-          'Intelligent Animal Care',
+          'Your Journey to Freedom',
           style: GoogleFonts.poppins(
             fontSize: 18,
             color: Colors.white.withOpacity(0.9),
@@ -497,7 +507,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       child: Column(
         children: [
           Text(
-            'Welcome to the Future of Animal Care',
+            'Take Control of Your Life',
             style: GoogleFonts.montserrat(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -507,7 +517,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            'AniWise leverages AI technology to revolutionize how you monitor, diagnose, and care for your animals. Join our community of innovative farmers and veterinary professionals.',
+            'Corn Addiction provides you with the tools, support, and community you need to overcome addiction and build a healthier future. Start your recovery journey today.',
             style: GoogleFonts.poppins(
               fontSize: 15,
               color: Colors.white.withOpacity(0.9),
@@ -526,7 +536,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ),
               const SizedBox(width: 8),
               Text(
-                'Over 10,000 animals monitored',
+                'Join thousands in recovery',
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -693,7 +703,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            'v2.3.1 • © 2025 AniWise',
+            'v2.3.1 • © 2025 Corn Addiction',
             style: GoogleFonts.poppins(
               fontSize: 12,
               color: Colors.white.withOpacity(0.5),

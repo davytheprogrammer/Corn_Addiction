@@ -56,9 +56,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
           await _firestore.collection('users').doc(result.user!.uid).set({
             'email': email,
             'createdAt': FieldValue.serverTimestamp(),
-            'userType': 'livestock_owner', // Set appropriate user type
+            'userType': 'recovery_user',
             'isProfileComplete': false,
             'lastLogin': FieldValue.serverTimestamp(),
+            'recoveryStartDate': FieldValue.serverTimestamp(),
+            'currentStreak': 0,
+            'longestStreak': 0,
+            'totalCleanDays': 0,
           });
 
           // User creation successful - navigation happens automatically with auth state change
@@ -105,10 +109,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final size = MediaQuery.of(context).size;
 
     // Design system colors
-    final primaryColor = Color(0xFF2E7D32); // Deep green
-    final secondaryColor = Color(0xFF66BB6A); // Medium green
-    final backgroundColor = Color(0xFFF5F9F6); // Light green-tinted background
-    final textColor = Color(0xFF1B5E20); // Dark green for text
+    final primaryColor = Color(0xFF1976D2); // Deep blue
+    final secondaryColor = Color(0xFF42A5F5); // Medium blue
+    final backgroundColor = Color(0xFFF5F9FF); // Light blue-tinted background
+    final textColor = Color(0xFF0D47A1); // Dark blue for text
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -155,7 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   // App name and tagline
                   Text(
-                    'AniWise',
+                    'True Beat',
                     style: theme.textTheme.headlineMedium?.copyWith(
                       color: primaryColor,
                       fontWeight: FontWeight.bold,
@@ -165,7 +169,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const SizedBox(height: 8),
                   Text(
-                    'Modern Livestock Management',
+                    'Your Path to Recovery',
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: textColor.withOpacity(0.7),
                     ),
@@ -403,7 +407,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   // Terms and privacy policy
                   Text(
-                    'By creating an account, you agree to our Terms of Service and Privacy Policy',
+                    'By creating an account, you agree to our Terms of Service and Privacy Policy. We prioritize your privacy and anonymity in your recovery journey.',
                     style: TextStyle(
                       color: textColor.withOpacity(0.6),
                       fontSize: 12,

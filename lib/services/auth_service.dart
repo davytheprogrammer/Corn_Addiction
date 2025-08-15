@@ -46,7 +46,7 @@ class AuthService {
       displayName: user.displayName,
       createdAt: DateTime.now(),
       lastActive: DateTime.now(),
-      recoveryStartDate: DateTime.now(),
+      isProfileComplete: false,
     );
 
     await _firestore

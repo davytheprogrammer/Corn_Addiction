@@ -19,6 +19,7 @@ dependencies:
 
   # State Management
   flutter_riverpod: ^2.4.9
+  provider: ^6.0.5
 
   # UI & Fonts
   google_fonts: ^6.1.0

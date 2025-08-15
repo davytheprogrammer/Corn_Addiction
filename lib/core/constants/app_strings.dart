@@ -1,6 +1,6 @@
 class AppStrings {
   // App Info
-  static const String appName = 'Truebeat';
+  static const String appName = 'TrueBeat';
   static const String appTagline = 'Your journey to freedom starts here';
 
   // Authentication

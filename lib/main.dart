@@ -11,6 +11,7 @@ import 'package:corn_addiction/providers/auth_provider.dart';
 import 'package:corn_addiction/providers/theme_provider.dart' as theme;
 import 'package:corn_addiction/app.dart';
 import 'package:corn_addiction/wrapper.dart';
+import 'package:corn_addiction/screens/rewards/rewards_screen.dart';
 
 class Routes {
   static const String splash = '/splash';
@@ -28,6 +29,7 @@ class Routes {
   static const String resources = '/resources';
   static const String meditations = '/meditations';
   static const String challenges = '/challenges';
+  static const String rewards = '/rewards';
   static const String accountSettings = '/account-settings';
 }
 
@@ -87,6 +89,7 @@ class RecoveryApp extends ConsumerWidget {
               child: const Wrapper(),
             ),
         Routes.app: (context) => const App(),
+        Routes.rewards: (context) => const RewardsScreen(),
       },
       debugShowCheckedModeBanner: false,
     );

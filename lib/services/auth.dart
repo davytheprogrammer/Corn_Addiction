@@ -45,7 +45,7 @@ class AuthService {
           displayName: 'Anonymous User',
           createdAt: DateTime.now(),
           lastActive: DateTime.now(),
-          isAnonymous: true,
+          recoveryStartDate: DateTime.now().millisecondsSinceEpoch,
         );
         
         // Save to Firestore
@@ -158,8 +158,7 @@ class AuthService {
           displayName: displayName,
           createdAt: DateTime.now(),
           lastActive: DateTime.now(),
-          recoveryStartDate: DateTime.now(),
-          isAnonymous: false,
+          recoveryStartDate: DateTime.now().millisecondsSinceEpoch,
         );
         
         // Save to Firestore

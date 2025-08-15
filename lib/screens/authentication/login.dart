@@ -193,10 +193,10 @@ class _LoginScreenState extends State<LoginScreen>
     final size = MediaQuery.of(context).size;
 
     // Design system colors
-    final primaryColor = Color(0xFF2E7D32); // Deep green
-    final secondaryColor = Color(0xFF66BB6A); // Medium green
-    final backgroundColor = Color(0xFFF5F9F6); // Light green-tinted background
-    final textColor = Color(0xFF1B5E20); // Dark green for text
+    final primaryColor = Color(0xFF1976D2); // Deep blue
+    final secondaryColor = Color(0xFF42A5F5); // Medium blue
+    final backgroundColor = Color(0xFFF5F9FF); // Light blue-tinted background
+    final textColor = Color(0xFF0D47A1); // Dark blue for text
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -245,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                     // App name and welcome message
                     Text(
-                      'AniWise',
+                      'True Beat',
                       style: theme.textTheme.headlineMedium?.copyWith(
                         color: primaryColor,
                         fontWeight: FontWeight.bold,
@@ -265,7 +265,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 8),
                     Text(
-                      'Sign in to continue to your livestock management dashboard',
+                      'Sign in to continue your recovery journey',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: textColor.withOpacity(0.7),
                       ),
