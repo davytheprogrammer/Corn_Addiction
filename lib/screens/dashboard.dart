@@ -373,18 +373,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       currentStreakDays: _controller.currentStreakDays,
                       currentStreak: _controller.currentStreak,
                       onRelapse: _handleRelapse,
-                    ),
-                    const SizedBox(height: 24),
-                    _buildPanicButton(),
-                    const SizedBox(height: 24),
-                    DashboardWidgets.buildModernCheckInSection(
-                      hasCheckedInToday: _controller.hasCheckedInToday,
                       onCheckIn: _handleCheckIn,
                     ),
                     const SizedBox(height: 24),
-                    DashboardWidgets.buildModernUrgesSection(
-                      recentUrges: _controller.recentUrges,
-                    ),
+                    _buildPanicButton(),
                     const SizedBox(height: 120), // Space for bottom nav
                   ],
                 ),
