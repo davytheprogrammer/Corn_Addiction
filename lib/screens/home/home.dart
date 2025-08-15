@@ -5,6 +5,10 @@ import 'package:corn_addiction/core/constants/app_colors.dart';
 import 'package:corn_addiction/screens/chat.dart';
 import 'package:corn_addiction/screens/settings.dart';
 import 'package:corn_addiction/screens/stats/stats_screen.dart';
+import 'package:corn_addiction/screens/recovery/recovery_toolkit_screen.dart';
+import 'package:corn_addiction/screens/recovery/breathing_exercise_screen.dart';
+import 'package:corn_addiction/screens/recovery/meditation_screen.dart';
+import 'package:corn_addiction/screens/recovery/habit_tracker_screen.dart';
 
 import '../dashboard.dart';
 import '../tools/tools_screen.dart';
@@ -32,8 +36,8 @@ class _HomePageState extends ConsumerState<HomePage>
     // Set up screens
     _screens = [
       const DashboardScreen(),
+      const RecoveryToolkitScreen(),
       const StatsScreen(),
-      const ToolsScreen(),
       const ChatScreen(),
       const Settings(),
     ];
@@ -78,7 +82,7 @@ class _HomePageState extends ConsumerState<HomePage>
 
   Widget? _buildFAB(int selectedTab) {
     // Only show FAB on certain tabs
-    if (selectedTab == 0 || selectedTab == 1) {
+    if (selectedTab == 0 || selectedTab == 1 || selectedTab == 2) {
       return ScaleTransition(
         scale: _fabScaleAnimation,
         child: Container(
@@ -155,8 +159,8 @@ class _HomePageState extends ConsumerState<HomePage>
           notchRadius: 32,
         ),
         child: Container(
-          height: 90,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          height: 110,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -164,9 +168,10 @@ class _HomePageState extends ConsumerState<HomePage>
                   child:
                       _buildNavItem(0, Icons.dashboard_rounded, 'Dashboard')),
               Expanded(
-                  child: _buildNavItem(1, Icons.insert_chart_rounded, 'Stats')),
+                  child: _buildNavItem(1, Icons.build_rounded, 'Recovery')),
               const SizedBox(width: 56), // Space for FAB
-              Expanded(child: _buildNavItem(3, Icons.chat_rounded, 'Chat')),
+              Expanded(
+                  child: _buildNavItem(2, Icons.insert_chart_rounded, 'Stats')),
               Expanded(
                   child: _buildNavItem(4, Icons.settings_rounded, 'Settings')),
             ],
@@ -184,7 +189,7 @@ class _HomePageState extends ConsumerState<HomePage>
         ref.read(selectedTabProvider.notifier).state = index;
 
         // Animate FAB when needed
-        if (index == 0 || index == 1) {
+        if (index == 0 || index == 1 || index == 2) {
           if (!_fabAnimationController.isCompleted) {
             _fabAnimationController.forward();
           }

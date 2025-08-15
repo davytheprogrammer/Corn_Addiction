@@ -159,4 +159,17 @@ class DatabaseService {
       rethrow;
     }
   }
+
+  // End a streak (mark as inactive)
+  Future<void> endStreak(String streakId) async {
+    try {
+      await updateStreak(streakId, {
+        'isActive': false,
+        'endDate': Timestamp.fromDate(DateTime.now()),
+      });
+    } catch (e) {
+      debugPrint('Error ending streak: $e');
+      rethrow;
+    }
+  }
 }

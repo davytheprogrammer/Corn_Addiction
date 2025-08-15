@@ -75,4 +75,33 @@ class DashboardController extends ChangeNotifier {
       throw Exception('Error: ${e.toString()}');
     }
   }
+
+  Future<String> reportRelapse() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final authService = AuthService();
+      final database = DatabaseService(uid: authService.currentUser!.uid);
+
+      // End current streak if it exists
+      if (_currentStreak != null && _currentStreak!.isActive) {
+        await database.endStreak(_currentStreak!.id);
+      }
+
+      // Reset streak data
+      _currentStreak = null;
+      _currentStreakDays = 0;
+      _hasCheckedInToday = false;
+      _lastCheckIn = null;
+
+      await loadUserData(); // Reload data to get updated state
+
+      return 'Relapse reported. Remember, recovery is a journey. You can start fresh tomorrow.';
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      throw Exception('Error reporting relapse: ${e.toString()}');
+    }
+  }
 }
