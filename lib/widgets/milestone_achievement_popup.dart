@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-
+import 'package:google_fonts/google_fonts.dart';
+import 'package:corn_addiction/core/constants/app_colors.dart';
 import '../models/streak_milestone_model.dart';
 
 class MilestoneAchievementPopup extends StatelessWidget {
@@ -31,7 +32,7 @@ class MilestoneAchievementPopup extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -49,9 +50,9 @@ class MilestoneAchievementPopup extends StatelessWidget {
                 ),
               ],
             ),
-            const Text(
+            Text(
               'Congratulations!',
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -61,7 +62,7 @@ class MilestoneAchievementPopup extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               _getMilestoneTitle(),
-              style: const TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -80,9 +81,10 @@ class MilestoneAchievementPopup extends StatelessWidget {
               ),
             const SizedBox(height: 24),
             Text(
-              milestone.rewards['message'] ?? 'You have reached an important milestone!',
+              milestone.rewards['message'] ??
+                  'You have reached an important milestone!',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 18,
                 color: Colors.white,
               ),
@@ -90,7 +92,7 @@ class MilestoneAchievementPopup extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Reward: ${milestone.rewards['points']} points',
-              style: const TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -102,14 +104,18 @@ class MilestoneAchievementPopup extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: _getPrimaryColor(),
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Claim Reward',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -138,34 +144,34 @@ class MilestoneAchievementPopup extends StatelessWidget {
   List<Color> _getGradientColors() {
     switch (milestone.milestone) {
       case 1:
-        return [Colors.blue.shade300, Colors.blue.shade700];
+        return [AppColors.primary, AppColors.primaryDark];
       case 7:
-        return [Colors.green.shade300, Colors.green.shade700];
+        return [AppColors.success, AppColors.secondary];
       case 30:
-        return [Colors.purple.shade300, Colors.purple.shade700];
+        return [AppColors.accent, AppColors.secondaryDark];
       case 90:
-        return [Colors.orange.shade300, Colors.orange.shade700];
+        return [AppColors.warning, AppColors.primary];
       case 365:
-        return [Colors.red.shade300, Colors.red.shade700];
+        return [AppColors.error, AppColors.primaryDark];
       default:
-        return [Colors.blue.shade300, Colors.blue.shade700];
+        return [AppColors.primary, AppColors.primaryDark];
     }
   }
 
   Color _getPrimaryColor() {
     switch (milestone.milestone) {
       case 1:
-        return Colors.blue.shade700;
+        return AppColors.primary;
       case 7:
-        return Colors.green.shade700;
+        return AppColors.success;
       case 30:
-        return Colors.purple.shade700;
+        return AppColors.accent;
       case 90:
-        return Colors.orange.shade700;
+        return AppColors.warning;
       case 365:
-        return Colors.red.shade700;
+        return AppColors.error;
       default:
-        return Colors.blue.shade700;
+        return AppColors.primary;
     }
   }
 }

@@ -24,7 +24,8 @@ final rewardsServiceProvider = Provider<RewardsService>((ref) {
 });
 
 // Provider for user's streak milestones
-final userMilestonesProvider = FutureProvider.family<List<StreakMilestoneModel>, String>(
+final userMilestonesProvider =
+    FutureProvider.family<List<StreakMilestoneModel>, String>(
   (ref, userId) async {
     final milestoneService = ref.watch(streakMilestoneServiceProvider);
     return await milestoneService.getUserMilestones(userId);
@@ -32,7 +33,8 @@ final userMilestonesProvider = FutureProvider.family<List<StreakMilestoneModel>,
 );
 
 // Provider for user's challenge badges
-final userBadgesProvider = FutureProvider.family<List<ChallengeBadgeModel>, String>(
+final userBadgesProvider =
+    FutureProvider.family<List<ChallengeBadgeModel>, String>(
   (ref, userId) async {
     final badgeService = ref.watch(challengeBadgeServiceProvider);
     return await badgeService.getUserBadges(userId);
@@ -40,7 +42,8 @@ final userBadgesProvider = FutureProvider.family<List<ChallengeBadgeModel>, Stri
 );
 
 // Provider to check for new milestone when user streak updates
-final checkMilestoneProvider = FutureProvider.family<StreakMilestoneModel?, UserModel>(
+final checkMilestoneProvider =
+    FutureProvider.family<StreakMilestoneModel?, UserModel>(
   (ref, user) async {
     final milestoneService = ref.watch(streakMilestoneServiceProvider);
     return await milestoneService.checkForMilestone(user);
@@ -52,22 +55,20 @@ final currentUserProvider = Provider<UserModel?>((ref) {
   final authService = AuthService();
   final user = authService.currentUser;
   if (user == null) return null;
-  
+
   // Convert Firebase User to UserModel
   return UserModel(
     uid: user.uid,
     email: user.email ?? '',
+    displayName: user.displayName,
     createdAt: user.metadata.creationTime ?? DateTime.now(),
     lastActive: user.metadata.lastSignInTime ?? DateTime.now(),
     currentStreak: 0,
     longestStreak: 0,
+    totalDaysClean: 0,
     triggers: [],
-    recoveryGoals: {},
-    totalCleanDays: 0,
     copingStrategies: [],
-    achievedMilestones: [],
-    earnedBadges: [],
     preferences: {},
-    recoveryStartDate: DateTime.now().millisecondsSinceEpoch,
+    recoveryStartDate: DateTime.now(),
   );
 });

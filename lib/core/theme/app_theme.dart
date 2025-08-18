@@ -11,6 +11,9 @@ class AppTheme {
         brightness: Brightness.light,
         surface: Colors.white,
         background: AppColors.background,
+        primary: AppColors.primary,
+        secondary: AppColors.secondary,
+        tertiary: AppColors.accent,
       ),
       scaffoldBackgroundColor: AppColors.background,
       appBarTheme: const AppBarTheme(
@@ -19,28 +22,45 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         surfaceTintColor: Colors.transparent,
+        titleTextStyle: TextStyle(
+          color: AppColors.textPrimary,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       bottomAppBarTheme: const BottomAppBarTheme(
         color: Colors.white,
-        elevation: 8,
+        elevation: 12,
         surfaceTintColor: Colors.transparent,
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Colors.white,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textSecondary,
-        elevation: 8,
+        elevation: 12,
+        type: BottomNavigationBarType.fixed,
       ),
-      cardTheme: const CardThemeData(
+      cardTheme: CardThemeData(
         color: Colors.white,
-        elevation: 2,
+        elevation: 0,
         surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shadowColor: Colors.black.withValues(alpha: 0.05),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
+          shadowColor: Colors.transparent,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.primary,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),

@@ -8,19 +8,22 @@ class UserModel {
   final String? lastName;
   final DateTime createdAt;
   final DateTime lastActive;
+  final DateTime? recoveryStartDate;
   final String? country;
-  final String? language;
+  final String? timezone;
+  final int age;
+  final String? gender;
+  final int currentStreak;
+  final int longestStreak;
+  final int totalDaysClean;
+  final int urgesResisted;
+  final int checkInsCompleted;
+  final bool isAnonymous;
   final bool isProfileComplete;
   final Map<String, dynamic> preferences;
-  final int recoveryStartDate; // timestamp when user started recovery
-  final int currentStreak; // current streak in days
-  final int longestStreak; // longest streak achieved in days
-  final List<String> triggers; // user's identified triggers
-  final Map<String, dynamic> recoveryGoals; // daily, weekly, monthly goals
-  final int totalCleanDays; // total number of clean days
-  final List<String> copingStrategies; // user's preferred coping strategies
-  final List<int> achievedMilestones; // streak milestones achieved (1, 7, 30, 90, 365 days)
-  final List<String> earnedBadges; // IDs of badges earned from challenges
+  final List<String> triggers;
+  final List<String> copingStrategies;
+  final List<String> earnedBadges;
 
   UserModel({
     required this.uid,
@@ -30,19 +33,22 @@ class UserModel {
     this.lastName,
     required this.createdAt,
     required this.lastActive,
+    this.recoveryStartDate,
     this.country,
-    this.language,
-    this.isProfileComplete = false,
-    this.preferences = const {},
-    this.recoveryStartDate = 0,
+    this.timezone,
+    this.age = 0,
+    this.gender,
     this.currentStreak = 0,
     this.longestStreak = 0,
+    this.totalDaysClean = 0,
+    this.urgesResisted = 0,
+    this.checkInsCompleted = 0,
+    this.isAnonymous = true,
+    this.isProfileComplete = false,
+    this.preferences = const {},
     this.triggers = const [],
-    this.recoveryGoals = const {},
-    this.totalCleanDays = 0,
     this.copingStrategies = const [],
-    this.achievedMilestones = const [],
-    this.earnedBadges = const []
+    this.earnedBadges = const [],
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -55,18 +61,23 @@ class UserModel {
       lastName: data['lastName'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       lastActive: (data['lastActive'] as Timestamp).toDate(),
+      recoveryStartDate: data['recoveryStartDate'] != null
+          ? (data['recoveryStartDate'] as Timestamp).toDate()
+          : null,
       country: data['country'],
-      language: data['language'],
-      isProfileComplete: data['isProfileComplete'] ?? false,
-      preferences: Map<String, dynamic>.from(data['preferences'] ?? {}),
-      recoveryStartDate: data['recoveryStartDate'] ?? 0,
+      timezone: data['timezone'],
+      age: data['age'] ?? 0,
+      gender: data['gender'],
       currentStreak: data['currentStreak'] ?? 0,
       longestStreak: data['longestStreak'] ?? 0,
+      totalDaysClean: data['totalDaysClean'] ?? 0,
+      urgesResisted: data['urgesResisted'] ?? 0,
+      checkInsCompleted: data['checkInsCompleted'] ?? 0,
+      isAnonymous: data['isAnonymous'] ?? true,
+      isProfileComplete: data['isProfileComplete'] ?? false,
+      preferences: Map<String, dynamic>.from(data['preferences'] ?? {}),
       triggers: List<String>.from(data['triggers'] ?? []),
-      recoveryGoals: Map<String, dynamic>.from(data['recoveryGoals'] ?? {}),
-      totalCleanDays: data['totalCleanDays'] ?? 0,
       copingStrategies: List<String>.from(data['copingStrategies'] ?? []),
-      achievedMilestones: List<int>.from(data['achievedMilestones'] ?? []),
       earnedBadges: List<String>.from(data['earnedBadges'] ?? []),
     );
   }
@@ -79,18 +90,23 @@ class UserModel {
       'lastName': lastName,
       'createdAt': Timestamp.fromDate(createdAt),
       'lastActive': Timestamp.fromDate(lastActive),
+      'recoveryStartDate': recoveryStartDate != null
+          ? Timestamp.fromDate(recoveryStartDate!)
+          : null,
       'country': country,
-      'language': language,
-      'isProfileComplete': isProfileComplete,
-      'preferences': preferences,
-      'recoveryStartDate': recoveryStartDate,
+      'timezone': timezone,
+      'age': age,
+      'gender': gender,
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
+      'totalDaysClean': totalDaysClean,
+      'urgesResisted': urgesResisted,
+      'checkInsCompleted': checkInsCompleted,
+      'isAnonymous': isAnonymous,
+      'isProfileComplete': isProfileComplete,
+      'preferences': preferences,
       'triggers': triggers,
-      'recoveryGoals': recoveryGoals,
-      'totalCleanDays': totalCleanDays,
       'copingStrategies': copingStrategies,
-      'achievedMilestones': achievedMilestones,
       'earnedBadges': earnedBadges,
     };
   }
@@ -103,18 +119,21 @@ class UserModel {
     String? lastName,
     DateTime? createdAt,
     DateTime? lastActive,
+    DateTime? recoveryStartDate,
     String? country,
-    String? language,
-    bool? isProfileComplete,
-    Map<String, dynamic>? preferences,
-    int? recoveryStartDate,
+    String? timezone,
+    int? age,
+    String? gender,
     int? currentStreak,
     int? longestStreak,
+    int? totalDaysClean,
+    int? urgesResisted,
+    int? checkInsCompleted,
+    bool? isAnonymous,
+    bool? isProfileComplete,
+    Map<String, dynamic>? preferences,
     List<String>? triggers,
-    Map<String, dynamic>? recoveryGoals,
-    int? totalCleanDays,
     List<String>? copingStrategies,
-    List<int>? achievedMilestones,
     List<String>? earnedBadges,
   }) {
     return UserModel(
@@ -125,18 +144,21 @@ class UserModel {
       lastName: lastName ?? this.lastName,
       createdAt: createdAt ?? this.createdAt,
       lastActive: lastActive ?? this.lastActive,
-      country: country ?? this.country,
-      language: language ?? this.language,
-      isProfileComplete: isProfileComplete ?? this.isProfileComplete,
-      preferences: preferences ?? this.preferences,
       recoveryStartDate: recoveryStartDate ?? this.recoveryStartDate,
+      country: country ?? this.country,
+      timezone: timezone ?? this.timezone,
+      age: age ?? this.age,
+      gender: gender ?? this.gender,
       currentStreak: currentStreak ?? this.currentStreak,
       longestStreak: longestStreak ?? this.longestStreak,
+      totalDaysClean: totalDaysClean ?? this.totalDaysClean,
+      urgesResisted: urgesResisted ?? this.urgesResisted,
+      checkInsCompleted: checkInsCompleted ?? this.checkInsCompleted,
+      isAnonymous: isAnonymous ?? this.isAnonymous,
+      isProfileComplete: isProfileComplete ?? this.isProfileComplete,
+      preferences: preferences ?? this.preferences,
       triggers: triggers ?? this.triggers,
-      recoveryGoals: recoveryGoals ?? this.recoveryGoals,
-      totalCleanDays: totalCleanDays ?? this.totalCleanDays,
       copingStrategies: copingStrategies ?? this.copingStrategies,
-      achievedMilestones: achievedMilestones ?? this.achievedMilestones,
       earnedBadges: earnedBadges ?? this.earnedBadges,
     );
   }

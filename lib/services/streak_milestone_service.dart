@@ -7,7 +7,7 @@ import '../widgets/milestone_achievement_popup.dart';
 
 class StreakMilestoneService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   // Milestone days to check for
   final List<int> _milestones = [1, 7, 30, 90, 365];
 
@@ -17,12 +17,18 @@ class StreakMilestoneService {
     if (!_milestones.contains(user.currentStreak)) {
       return null;
     }
-    
-    // Check if milestone is already achieved
-    if (user.achievedMilestones.contains(user.currentStreak)) {
+
+    // Check if milestone is already achieved by querying Firestore
+    final existingMilestone = await _firestore
+        .collection('streak_milestones')
+        .where('userId', isEqualTo: user.uid)
+        .where('milestone', isEqualTo: user.currentStreak)
+        .get();
+
+    if (existingMilestone.docs.isNotEmpty) {
       return null;
     }
-    
+
     // Create new milestone
     final milestone = StreakMilestoneModel(
       id: '', // Will be set after Firestore add
@@ -30,26 +36,25 @@ class StreakMilestoneService {
       milestone: user.currentStreak,
       achievedAt: DateTime.now(),
       rewardClaimed: false,
-      animationPath: StreakMilestoneModel.getAnimationPathForMilestone(user.currentStreak),
+      animationPath:
+          StreakMilestoneModel.getAnimationPathForMilestone(user.currentStreak),
       rewards: _getRewardsForMilestone(user.currentStreak),
     );
-    
+
     // Save milestone to Firestore
-    final docRef = await _firestore.collection('streak_milestones').add(milestone.toFirestore());
-    
+    final docRef = await _firestore
+        .collection('streak_milestones')
+        .add(milestone.toFirestore());
+
     // Update milestone with generated ID
     final updatedMilestone = milestone.copyWith(id: docRef.id);
     await docRef.update({'id': docRef.id});
-    
-    // Update user's achieved milestones
-    final updatedAchievedMilestones = List<int>.from(user.achievedMilestones)..add(user.currentStreak);
-    await _firestore.collection('users').doc(user.uid).update({
-      'achievedMilestones': updatedAchievedMilestones,
-    });
-    
+
+    // No need to update user document since we track milestones separately in their own collection
+
     return updatedMilestone;
   }
-  
+
   // Get rewards for milestone
   Map<String, dynamic> _getRewardsForMilestone(int milestone) {
     switch (milestone) {
@@ -85,7 +90,7 @@ class StreakMilestoneService {
         };
     }
   }
-  
+
   // Get all user's milestones
   Future<List<StreakMilestoneModel>> getUserMilestones(String userId) async {
     final querySnapshot = await _firestore
@@ -93,21 +98,22 @@ class StreakMilestoneService {
         .where('userId', isEqualTo: userId)
         .orderBy('achievedAt', descending: true)
         .get();
-    
+
     return querySnapshot.docs
         .map((doc) => StreakMilestoneModel.fromFirestore(doc))
         .toList();
   }
-  
+
   // Claim milestone reward
   Future<void> claimMilestoneReward(String milestoneId) async {
     await _firestore.collection('streak_milestones').doc(milestoneId).update({
       'rewardClaimed': true,
     });
   }
-  
+
   // Show milestone achievement popup
-  void showMilestonePopup(BuildContext context, StreakMilestoneModel milestone, Function onRewardClaimed) {
+  void showMilestonePopup(BuildContext context, StreakMilestoneModel milestone,
+      Function onRewardClaimed) {
     showDialog(
       context: context,
       barrierDismissible: false,

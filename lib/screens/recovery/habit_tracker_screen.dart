@@ -2,6 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:corn_addiction/core/constants/app_colors.dart';
 import 'package:intl/intl.dart';
+import '../../services/ai_habit_service.dart';
+import '../../services/auth_service.dart';
+import '../../models/ai_habit_model.dart';
+
+// Color extension for opacity handling
+extension ColorExtension on Color {
+  Color withValues({double? alpha}) {
+    return withOpacity(alpha ?? 1.0);
+  }
+}
 
 class HabitTrackerScreen extends StatefulWidget {
   const HabitTrackerScreen({super.key});
@@ -11,43 +21,94 @@ class HabitTrackerScreen extends StatefulWidget {
 }
 
 class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
-  final List<Habit> _habits = [
-    Habit(
-      name: 'Morning Meditation',
-      icon: Icons.self_improvement_rounded,
-      color: Colors.purple,
-      streak: 5,
-      completedToday: true,
-    ),
-    Habit(
-      name: 'Exercise',
-      icon: Icons.fitness_center_rounded,
-      color: Colors.orange,
-      streak: 3,
-      completedToday: false,
-    ),
-    Habit(
-      name: 'Read Recovery Book',
-      icon: Icons.book_rounded,
-      color: Colors.blue,
-      streak: 7,
-      completedToday: true,
-    ),
-    Habit(
-      name: 'Gratitude Journal',
-      icon: Icons.favorite_rounded,
-      color: Colors.pink,
-      streak: 2,
-      completedToday: false,
-    ),
-    Habit(
-      name: 'Cold Shower',
-      icon: Icons.shower_rounded,
-      color: Colors.cyan,
-      streak: 1,
-      completedToday: false,
-    ),
-  ];
+  final AIHabitService _habitService = AIHabitService();
+  final AuthService _authService = AuthService();
+
+  List<AIHabitModel> _habits = [];
+  bool _isLoading = true;
+  bool _isRefreshing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHabits();
+  }
+
+  Future<void> _loadHabits() async {
+    print('🎯 Habit Tracker: Loading habits...');
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final user = _authService.currentUser;
+      if (user != null) {
+        final habits = await _habitService.getDailyHabits(user.uid);
+        print('🎯 Habit Tracker: Loaded ${habits.length} habits');
+        if (mounted) {
+          setState(() {
+            _habits = habits;
+            _isLoading = false;
+          });
+        }
+      } else {
+        print('🎯 Habit Tracker: No user found');
+      }
+    } catch (e) {
+      print('🎯 Habit Tracker: Error loading habits: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _completeHabit(AIHabitModel habit) async {
+    print('🎯 Habit Tracker: Completing habit: ${habit.title}');
+
+    try {
+      final user = _authService.currentUser;
+      if (user != null) {
+        final success = await _habitService.completeHabit(user.uid, habit.id);
+        if (success && mounted) {
+          setState(() {
+            final index = _habits.indexWhere((h) => h.id == habit.id);
+            if (index != -1) {
+              _habits[index] = habit.copyWith(
+                isCompleted: true,
+                completedAt: DateTime.now(),
+              );
+            }
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Great job! "${habit.title}" completed!',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('🎯 Habit Tracker: Error completing habit: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error completing habit: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +156,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
   }
 
   Widget _buildHeader() {
-    final completedToday = _habits.where((h) => h.completedToday).length;
+    final completedToday = _habits.where((h) => h.isCompleted && h.completedAt?.day == DateTime.now().day).length;
     final totalHabits = _habits.length;
     final progress = totalHabits > 0 ? completedToday / totalHabits : 0.0;
 
@@ -208,13 +269,14 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
     );
   }
 
-  Widget _buildHabitCard(Habit habit) {
+  Widget _buildHabitCard(AIHabitModel habit) {
+    final bool isCompletedToday = habit.isCompleted && habit.completedAt?.day == DateTime.now().day;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: habit.completedToday
+        border: isCompletedToday
             ? Border.all(color: Colors.green, width: 2)
             : null,
         boxShadow: [
@@ -228,22 +290,22 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => _toggleHabit(habit),
+            onTap: () => _completeHabit(habit),
             child: Container(
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: habit.completedToday
+                color: isCompletedToday
                     ? Colors.green
-                    : habit.color.withValues(alpha: 0.1),
+                    : getHabitColor(habit.category).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(25),
-                border: habit.completedToday
+                border: isCompletedToday
                     ? null
-                    : Border.all(color: habit.color.withValues(alpha: 0.3)),
+                    : Border.all(color: getHabitColor(habit.category).withValues(alpha: 0.3)),
               ),
               child: Icon(
-                habit.completedToday ? Icons.check : habit.icon,
-                color: habit.completedToday ? Colors.white : habit.color,
+                isCompletedToday ? Icons.check : getHabitIcon(habit.category),
+                color: isCompletedToday ? Colors.white : getHabitColor(habit.category),
                 size: 24,
               ),
             ),
@@ -254,12 +316,12 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  habit.name,
+                  habit.title,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
-                    decoration: habit.completedToday
+                    decoration: isCompletedToday
                         ? TextDecoration.lineThrough
                         : null,
                   ),
@@ -274,7 +336,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${habit.streak} day streak',
+                      getStreakText(habit),
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: AppColors.textSecondary,
@@ -285,7 +347,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
               ],
             ),
           ),
-          if (habit.completedToday)
+          if (isCompletedToday)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -412,7 +474,11 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
     );
   }
 
-  Widget _buildHabitStatsCard(Habit habit) {
+  Widget _buildHabitStatsCard(AIHabitModel habit) {
+    final Color habitColor = getHabitColor(habit.category);
+    final IconData habitIcon = getHabitIcon(habit.category);
+    final int streak = getHabitStreak(habit);
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -432,12 +498,12 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: habit.color.withValues(alpha: 0.1),
+              color: habitColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(25),
             ),
             child: Icon(
-              habit.icon,
-              color: habit.color,
+              habitIcon,
+              color: habitColor,
               size: 24,
             ),
           ),
@@ -447,7 +513,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  habit.name,
+                  habit.title,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -456,7 +522,7 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Current streak: ${habit.streak} days',
+                  'Current streak: $streak days',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: AppColors.textSecondary,
@@ -468,11 +534,11 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
           Column(
             children: [
               Text(
-                '${habit.streak}',
+                '$streak',
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: habit.color,
+                  color: habitColor,
                 ),
               ),
               Text(
@@ -489,15 +555,52 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
     );
   }
 
-  void _toggleHabit(Habit habit) {
-    setState(() {
-      habit.completedToday = !habit.completedToday;
-      if (habit.completedToday) {
-        habit.streak++;
-      } else {
-        habit.streak = habit.streak > 0 ? habit.streak - 1 : 0;
-      }
-    });
+  // Helper methods to handle AIHabitModel
+  Color getHabitColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'exercise':
+        return Colors.blue;
+      case 'nutrition':
+        return Colors.green;
+      case 'meditation':
+        return Colors.purple;
+      case 'recovery':
+        return Colors.orange;
+      case 'education':
+        return Colors.teal;
+      default:
+        return AppColors.primary;
+    }
+  }
+
+  IconData getHabitIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'exercise':
+        return Icons.fitness_center;
+      case 'nutrition':
+        return Icons.restaurant;
+      case 'meditation':
+        return Icons.self_improvement;
+      case 'recovery':
+        return Icons.healing;
+      case 'education':
+        return Icons.school;
+      default:
+        return Icons.check_circle_outline;
+    }
+  }
+
+  int getHabitStreak(AIHabitModel habit) {
+    // For now return a placeholder value; in a real app,
+    // this would calculate streak based on habit history data
+    return habit.metadata.containsKey('streak') ? 
+      habit.metadata['streak'] as int : 
+      (habit.isCompleted ? 1 : 0);
+  }
+  
+  String getStreakText(AIHabitModel habit) {
+    int streak = getHabitStreak(habit);
+    return '$streak day streak';
   }
 
   void _showAddHabitDialog() {
@@ -523,18 +626,4 @@ class _HabitTrackerScreenState extends State<HabitTrackerScreen> {
   }
 }
 
-class Habit {
-  final String name;
-  final IconData icon;
-  final Color color;
-  int streak;
-  bool completedToday;
-
-  Habit({
-    required this.name,
-    required this.icon,
-    required this.color,
-    required this.streak,
-    required this.completedToday,
-  });
-}
+// We are now using AIHabitModel instead of the Habit class

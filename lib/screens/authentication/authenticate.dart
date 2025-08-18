@@ -1,10 +1,9 @@
 // authenticate.dart
 import 'package:flutter/material.dart';
-
-import 'login.dart';
-import 'register.dart';
-import 'welcome.dart';
-
+import 'package:corn_addiction/core/constants/app_colors.dart';
+import 'modern_login.dart';
+import 'modern_register.dart';
+import 'modern_welcome.dart';
 
 class Authenticate extends StatefulWidget {
   const Authenticate({Key? key}) : super(key: key);
@@ -70,17 +69,17 @@ class AuthenticateState extends State<Authenticate>
 
   Widget _buildCurrentScreen() {
     if (showWelcome) {
-      return WelcomeScreen(
+      return ModernWelcomeScreen(
         onAuthSelect: onAuthSelect,
         key: const ValueKey('welcome'),
       );
     } else if (showSignIn) {
-      return LoginScreen(
+      return ModernLoginScreen(
         toggleView: toggleView,
         key: const ValueKey('login'),
       );
     } else {
-      return RegisterScreen(
+      return ModernRegisterScreen(
         toggleView: toggleView,
         key: const ValueKey('register'),
       );
@@ -89,35 +88,30 @@ class AuthenticateState extends State<Authenticate>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            image: DecorationImage(
-              image: const AssetImage('assets/images/background.jpg'),
-              fit: BoxFit.cover,
-              colorFilter: ColorFilter.mode(
-                Colors.white.withOpacity(0.9),
-                BlendMode.lighten,
-              ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.background,
+            AppColors.surfaceVariant,
+          ],
+        ),
+      ),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 400),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return SlideTransition(
+            position: _slideAnimation,
+            child: FadeTransition(
+              opacity: animation,
+              child: child,
             ),
-          ),
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 400),
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return SlideTransition(
-              position: _slideAnimation,
-              child: FadeTransition(
-                opacity: animation,
-                child: child,
-              ),
-            );
-          },
-          child: _buildCurrentScreen(),
-        ),
-      ],
+          );
+        },
+        child: _buildCurrentScreen(),
+      ),
     );
   }
 }

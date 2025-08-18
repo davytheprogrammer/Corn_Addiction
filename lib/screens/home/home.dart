@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:corn_addiction/core/constants/app_colors.dart';
-import 'package:corn_addiction/screens/chat.dart';
-import 'package:corn_addiction/screens/settings.dart';
-import 'package:corn_addiction/screens/stats/stats_screen.dart';
-import 'package:corn_addiction/screens/recovery/recovery_toolkit_screen.dart';
-import 'package:corn_addiction/screens/recovery/breathing_exercise_screen.dart';
-import 'package:corn_addiction/screens/recovery/meditation_screen.dart';
+import 'package:corn_addiction/screens/modern_chat_screen.dart';
+import 'package:corn_addiction/screens/modern_settings.dart';
+import 'package:corn_addiction/screens/stats/modern_stats_screen.dart';
 import 'package:corn_addiction/screens/recovery/habit_tracker_screen.dart';
 
 import '../dashboard.dart';
@@ -36,10 +33,10 @@ class _HomePageState extends ConsumerState<HomePage>
     // Set up screens
     _screens = [
       const DashboardScreen(),
-      const RecoveryToolkitScreen(),
-      const StatsScreen(),
-      const ChatScreen(),
-      const Settings(),
+      const HabitTrackerScreen(),
+      const ModernStatsScreen(),
+      const ModernChatScreen(),
+      const ModernSettings(),
     ];
 
     // Set up FAB animations

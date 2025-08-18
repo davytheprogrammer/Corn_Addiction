@@ -11,7 +11,7 @@ import 'package:corn_addiction/providers/auth_provider.dart';
 import 'package:corn_addiction/providers/theme_provider.dart' as theme;
 import 'package:corn_addiction/app.dart';
 import 'package:corn_addiction/wrapper.dart';
-import 'package:corn_addiction/screens/rewards/rewards_screen.dart';
+import 'package:corn_addiction/screens/rewards/modern_rewards_screen.dart';
 
 class Routes {
   static const String splash = '/splash';
@@ -89,7 +89,7 @@ class RecoveryApp extends ConsumerWidget {
               child: const Wrapper(),
             ),
         Routes.app: (context) => const App(),
-        Routes.rewards: (context) => const RewardsScreen(),
+        Routes.rewards: (context) => const ModernRewardsScreen(),
       },
       debugShowCheckedModeBanner: false,
     );
@@ -206,9 +206,9 @@ class ModernBackgroundPainter extends CustomPainter {
               const Color(0xFF1E1E1E),
             ]
           : [
-              AppColors.gradientStart,
-              AppColors.gradientEnd,
-              AppColors.primary,
+              AppColors.background,
+              AppColors.surfaceVariant,
+              AppColors.primary.withValues(alpha: 0.1),
             ],
       stops: const [0.0, 0.5, 1.0],
     );

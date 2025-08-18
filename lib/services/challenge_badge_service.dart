@@ -1,15 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../models/challenge_badge_model.dart'; 
+import '../models/challenge_badge_model.dart';
 import '../models/challenge_model.dart';
 import '../models/challenge_progress_model.dart';
 import '../models/user_model.dart';
-import '../widgets/challenge_badge_card.dart';
 
 class ChallengeBadgeService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   // Award badge to user when challenge is completed
   Future<ChallengeBadgeModel?> awardBadgeForChallenge(
     String userId,
@@ -20,12 +19,12 @@ class ChallengeBadgeService {
     if (!progress.isCompleted) {
       return null;
     }
-    
+
     // Check if badge is already awarded
     if (progress.badgeAwarded) {
       return null;
     }
-    
+
     // Create new badge
     final badge = ChallengeBadgeModel(
       id: '', // Will be set after Firestore add
@@ -39,30 +38,33 @@ class ChallengeBadgeService {
       challengeId: challenge.id,
       isDisplayed: true,
     );
-    
+
     // Save badge to Firestore
-    final docRef = await _firestore.collection('challenge_badges').add(badge.toFirestore());
-    
+    final docRef = await _firestore
+        .collection('challenge_badges')
+        .add(badge.toFirestore());
+
     // Update badge with generated ID
     final updatedBadge = badge.copyWith(id: docRef.id);
     await docRef.update({'id': docRef.id});
-    
+
     // Update challenge progress to mark badge as awarded
     await _firestore.collection('challenge_progress').doc(progress.id).update({
       'badgeAwarded': true,
     });
-    
+
     // Update user's earned badges
     final userDoc = await _firestore.collection('users').doc(userId).get();
     final user = UserModel.fromFirestore(userDoc);
-    final updatedEarnedBadges = List<String>.from(user.earnedBadges)..add(updatedBadge.badgeId);
+    final updatedEarnedBadges = List<String>.from(user.earnedBadges)
+      ..add(updatedBadge.badgeId);
     await _firestore.collection('users').doc(userId).update({
       'earnedBadges': updatedEarnedBadges,
     });
-    
+
     return updatedBadge;
   }
-  
+
   // Get all user's badges
   Future<List<ChallengeBadgeModel>> getUserBadges(String userId) async {
     final querySnapshot = await _firestore
@@ -70,19 +72,19 @@ class ChallengeBadgeService {
         .where('userId', isEqualTo: userId)
         .orderBy('earnedAt', descending: true)
         .get();
-    
+
     return querySnapshot.docs
         .map((doc) => ChallengeBadgeModel.fromFirestore(doc))
         .toList();
   }
-  
+
   // Toggle badge display status
   Future<void> toggleBadgeDisplay(String badgeId, bool isDisplayed) async {
     await _firestore.collection('challenge_badges').doc(badgeId).update({
       'isDisplayed': isDisplayed,
     });
   }
-  
+
   // Show badge earned popup
   void showBadgeEarnedPopup(BuildContext context, ChallengeBadgeModel badge) {
     showDialog(
@@ -124,7 +126,7 @@ class ChallengeBadgeService {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -165,7 +167,8 @@ class ChallengeBadgeService {
                     foregroundColor: badge.challengeType == 'weekly'
                         ? Colors.teal.shade700
                         : Colors.amber.shade700,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
